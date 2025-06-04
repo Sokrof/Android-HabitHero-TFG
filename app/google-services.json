@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "770063004398",
+    "project_id": "habit-hero-9efe8",
+    "storage_bucket": "habit-hero-9efe8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770063004398:android:b61847e59cddd37a9a39ff",
+        "android_client_info": {
+          "package_name": "com.dgo.habitherov4"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQZ5sMZwS5a9faWaGtM7oJ8aP94FdpCeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
