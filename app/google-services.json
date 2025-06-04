@@ -12,7 +12,12 @@
           "package_name": "com.dgo.habithero"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBQZ5sMZwS5a9faWaGtM7oJ8aP94FdpCeE"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +41,20 @@
           "package_name": "com.dgo.habitherov4"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "770063004398-l313ch35apq7dpes295hovbqbbgre8ub.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dgo.habitherov4",
+            "certificate_hash": "fb2a0f2135b2df329efa0152af2374d490da2c2d"
+          }
+        },
+        {
+          "client_id": "770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBQZ5sMZwS5a9faWaGtM7oJ8aP94FdpCeE"
@@ -39,7 +62,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
