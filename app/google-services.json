@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:770063004398:android:b51d6aca961c32de9a39ff",
+        "android_client_info": {
+          "package_name": "com.dgo.habithero"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQZ5sMZwS5a9faWaGtM7oJ8aP94FdpCeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:770063004398:android:b61847e59cddd37a9a39ff",
         "android_client_info": {
           "package_name": "com.dgo.habitherov4"
