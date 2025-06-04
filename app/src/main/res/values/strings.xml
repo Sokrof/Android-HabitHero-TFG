@@ -4,4 +4,13 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="default_web_client_id" translatable="false">770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com</string>
+    
+    <!-- Nuevas strings -->
+    <string name="rewards">Recompensas</string>
+    <string name="missions">Misiones</string>
+    <string name="level">Nivel</string>
+    <string name="completed">Realizado</string>
+    <string name="pending">Pendiente</string>
+    <string name="daily">Diaria</string>
+    <string name="main">Principal</string>
 </resources>

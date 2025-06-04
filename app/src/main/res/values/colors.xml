@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Colores del tema -->
+    <color name="blue">#FF2196F3</color>
+    <color name="light_blue">#FFE3F2FD</color>
+    <color name="green">#FF4CAF50</color>
+    <color name="gray">#FF757575</color>
+    <color name="light_gray">#FFF5F5F5</color>
+    
+    <!-- Colores de categorías -->
+    <color name="category_main">#FF9C27B0</color>
+    <color name="category_daily">#FFFF5722</color>
+
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
