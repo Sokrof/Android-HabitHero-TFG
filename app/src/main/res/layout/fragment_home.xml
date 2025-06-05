@@ -1,117 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_blue"
+    android:orientation="vertical"
     tools:context=".ui.home.HomeFragment">
 
+    <!-- Header con perfil de usuario -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="220dp"
+        android:background="@color/blue"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp">
 
-        <!-- Header con perfil de usuario -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:background="@color/blue"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingTop="24dp"
-            android:paddingBottom="16dp"
-            android:paddingHorizontal="16dp">
-
-            <!-- Nivel -->
-            <TextView
-                android:id="@+id/user_level"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Nivel: 25"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <!-- Avatar con barra de progreso circular -->
-            <FrameLayout
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_marginVertical="12dp">
-
-                <ProgressBar
-                    android:id="@+id/exp_progress"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:indeterminate="false"
-                    android:max="100"
-                    android:progress="75"
-                    android:progressDrawable="@drawable/circular_progress" />
-
-                <ImageView
-                    android:id="@+id/user_avatar"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/circle_background_white"
-                    android:padding="16dp"
-                    android:src="@drawable/ic_user_placeholder" />
-
-            </FrameLayout>
-
-            <!-- Nombre de usuario -->
-            <TextView
-                android:id="@+id/user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ricardo Sarnosa"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <!-- Navegación de secciones -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Nivel -->
+        <TextView
+            android:id="@+id/user_level"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:orientation="horizontal"
-            android:padding="16dp">
+            android:layout_marginBottom="8dp"
+            android:text="Nivel: 25"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btn_rewards"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:background="@drawable/button_secondary"
-                android:text="@string/rewards"
-                android:textColor="@color/gray" />
+        <!-- Avatar con barra de progreso circular -->
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginVertical="12dp">
 
-            <Button
-                android:id="@+id/btn_missions"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:background="@drawable/button_primary"
-                android:text="@string/missions"
-                android:textColor="@color/white" />
+            <ProgressBar
+                android:id="@+id/exp_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="75"
+                android:progressDrawable="@drawable/circular_progress" />
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/user_avatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_background_white"
+                android:padding="16dp"
+                android:src="@drawable/ic_user_placeholder" />
 
-        <!-- Lista de misiones -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/missions_recycler_view"
-            android:layout_width="match_parent"
+        </FrameLayout>
+
+        <!-- Nombre de usuario -->
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:padding="8dp"
-            tools:listitem="@layout/item_mission" />
+            android:text="Ricardo Sarnosa"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
-</ScrollView>
+    <!-- Navegación de secciones -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btn_rewards"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_secondary"
+            android:text="@string/rewards"
+            android:textColor="@color/gray" />
+
+        <Button
+            android:id="@+id/btn_missions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_primary"
+            android:text="@string/missions"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <!-- Lista de misiones con scroll infinito -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/missions_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"
+        tools:listitem="@layout/item_mission" />
+
+</LinearLayout>
