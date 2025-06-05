@@ -1,5 +1,7 @@
 package com.dgo.habitherov4;
 
+import com.dgo.habitherov4.services.MissionCheckService;
+import com.dgo.habitherov4.services.NotificationService;
 import com.google.firebase.auth.FirebaseAuth;
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,6 +49,13 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+    
+        // Crear canal de notificaciones
+        NotificationService.createNotificationChannel(this);
+        
+        // Programar verificación periódica de misiones
+        Intent serviceIntent = new Intent();
+        MissionCheckService.enqueueWork(this, serviceIntent);
     }
     
     @Override

@@ -1,13 +1,17 @@
 package com.dgo.habitherov4.ui.dashboard;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,9 +32,15 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 public class DashboardFragment extends Fragment implements MissionsAdapter.OnMissionClickListener {
@@ -158,7 +168,11 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         ChipGroup categoryChipGroup = dialogView.findViewById(R.id.category_chip_group);
         ChipGroup difficultyChipGroup = dialogView.findViewById(R.id.difficulty_chip_group);
         Spinner missionTypeSpinner = dialogView.findViewById(R.id.mission_type_spinner);
-        TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
+        Button selectDeadlineBtn = dialogView.findViewById(R.id.btn_select_deadline);
+        TextView selectedDeadlineText = dialogView.findViewById(R.id.tv_selected_deadline);
+        
+        // Variable para almacenar deadline personalizado
+        final long[] customDeadline = {0};
         
         // Configurar spinner de tipo de misión
         ArrayAdapter<CharSequence> typeAdapter = new ArrayAdapter<>(getContext(),
@@ -167,10 +181,47 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         missionTypeSpinner.setAdapter(typeAdapter);
         
-        // Configurar TimePicker
-        timePicker.setIs24HourView(true);
-        timePicker.setHour(1); // Valor por defecto: 1 hora
-        timePicker.setMinute(0); // Valor por defecto: 0 minutos
+        // Configurar selector de fecha límite específica
+        selectDeadlineBtn.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            
+            // DatePickerDialog
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    
+                    // TimePickerDialog
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(
+                        getContext(),
+                        (timeView, hourOfDay, minute) -> {
+                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                            calendar.set(Calendar.MINUTE, minute);
+                            calendar.set(Calendar.SECOND, 0);
+                            
+                            customDeadline[0] = calendar.getTimeInMillis();
+                            
+                            // Formatear y mostrar la fecha seleccionada
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                            selectedDeadlineText.setText("Fecha límite: " + sdf.format(calendar.getTime()));
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    );
+                    timePickerDialog.show();
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            );
+            
+            // No permitir fechas pasadas
+            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+            datePickerDialog.show();
+        });
         
         // Seleccionar el primer chip por defecto
         if (categoryChipGroup.getChildCount() > 0) {
@@ -200,7 +251,6 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
             if (checkedDifficultyId != View.NO_ID) {
                 Chip selectedDifficultyChip = dialogView.findViewById(checkedDifficultyId);
                 String difficultyText = selectedDifficultyChip.getText().toString();
-                // Extraer solo la palabra de dificultad (sin el XP)
                 if (difficultyText.contains("Fácil")) {
                     difficulty = "Fácil";
                 } else if (difficultyText.contains("Medio")) {
@@ -210,24 +260,15 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                 }
             }
             
-            // Obtener tipo de misión seleccionado
+            // Obtener tipo de misión
             String missionType = missionTypeSpinner.getSelectedItem().toString();
-            
-            // Obtener tiempo del TimePicker (convertir a minutos totales)
-            int hours = timePicker.getHour();
-            int minutes = timePicker.getMinute();
-            int totalMinutes = (hours * 60) + minutes;
 
-            if (title.isEmpty() || description.isEmpty() || category.isEmpty() || difficulty.isEmpty()) {
+            if (title.isEmpty() || description.isEmpty() || category.isEmpty() || 
+                difficulty.isEmpty()) {
                 Toast.makeText(getContext(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
                 return;
             }
             
-            if (totalMinutes == 0) {
-                Toast.makeText(getContext(), "Por favor selecciona un tiempo válido", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             // Determinar el iconType basado en la categoría
             String iconType = "default";
             if (category.equals("Economía")) {
@@ -245,26 +286,81 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                     missionType,
                     false,
                     0,
-                    1, // maxProgress siempre es 1 para seguimiento simple
+                    1, // maxProgress siempre es 1
                     0, // La experiencia se asignará automáticamente
                     iconType,
                     difficulty
             );
             
-            // Asignar la dificultad (esto automáticamente asignará la experiencia)
+            // Usar deadline personalizado si se seleccionó, sino calcular automáticamente
+            if (customDeadline[0] > 0) {
+                newMission.setDeadlineTimestamp(customDeadline[0]);
+            } else {
+                // Establecer valores predeterminados para el tiempo
+                newMission.setTimeAmount(1);
+                newMission.setTimeUnit("días");
+                newMission.calculateDeadline();
+            }
+            
+            // Asignar la dificultad
             newMission.setDifficulty(difficulty);
             
-            // Aquí podrías guardar también el tiempo si lo necesitas en el modelo Mission
-            // Por ejemplo: newMission.setTimeLimit(totalMinutes);
+            // Programar alarma/notificación en Firebase
+            scheduleFirebaseAlarm(newMission);
 
-            // Guardar la misión usando el ViewModel
+            // Guardar la misión
             dashboardViewModel.addMission(newMission);
             Toast.makeText(getContext(), "Misión añadida correctamente", Toast.LENGTH_SHORT).show();
         });
-    
+
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
-    
+
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    // Método para programar alarma en Firebase
+    private void scheduleFirebaseAlarm(Mission mission) {
+        // Aquí implementarías la lógica para programar una alarma/notificación
+        // usando Firebase Cloud Functions o Firebase Cloud Messaging
+        
+        // Ejemplo básico:
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        
+        Map<String, Object> alarmData = new HashMap<>();
+        alarmData.put("missionId", mission.getId());
+        alarmData.put("userId", getCurrentUserId()); // Implementar este método
+        alarmData.put("deadlineTimestamp", mission.getDeadlineTimestamp());
+        alarmData.put("title", mission.getTitle());
+        alarmData.put("isActive", true);
+        
+        db.collection("mission_alarms")
+            .document(mission.getId())
+            .set(alarmData)
+            .addOnSuccessListener(aVoid -> {
+                Log.d("MissionAlarm", "Alarma programada correctamente");
+            })
+            .addOnFailureListener(e -> {
+                Log.e("MissionAlarm", "Error al programar alarma", e);
+            });
+    }
+
+    // Método para validar si una misión puede completarse
+    public boolean canCompleteMission(Mission mission) {
+        mission.checkIfExpired();
+        if (mission.isExpired()) {
+            Toast.makeText(getContext(), "Esta misión ha expirado y no puede completarse", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
+    }
+    
+    // Método para obtener el ID del usuario actual
+    private String getCurrentUserId() {
+        // Si usas Firebase Auth:
+        // return FirebaseAuth.getInstance().getCurrentUser().getUid();
+        
+        // Por ahora, retorna un ID temporal o implementa tu lógica de autenticación
+        return "temp_user_id";
     }
 }

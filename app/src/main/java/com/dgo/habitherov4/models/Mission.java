@@ -11,6 +11,10 @@ public class Mission {
     private int expReward;
     private String iconType;
     private String difficulty; // Nuevo campo para dificultad
+    private long deadlineTimestamp; // Timestamp de cuando expira la misión
+    private boolean isExpired;
+    private String timeUnit; // "minutos", "horas", "días", "semanas", "meses", "años"
+    private int timeAmount; // Cantidad de tiempo
     
     public Mission() {
         // Constructor vacío requerido para Firebase
@@ -31,8 +35,13 @@ public class Mission {
     }
 
     // Getters y setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
+    
+    public void setId(String id) {
+        this.id = id;
+    }
     
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -83,5 +92,74 @@ public class Mission {
             return isCompleted ? "Completado" : "Pendiente";
         }
         return progress + "/" + maxProgress;
+    }
+    
+    // Getters y setters para los nuevos campos
+    public long getDeadlineTimestamp() {
+        return deadlineTimestamp;
+    }
+    
+    public void setDeadlineTimestamp(long deadlineTimestamp) {
+        this.deadlineTimestamp = deadlineTimestamp;
+    }
+    
+    public boolean isExpired() {
+        return isExpired;
+    }
+    
+    public void setExpired(boolean expired) {
+        isExpired = expired;
+    }
+    
+    public String getTimeUnit() {
+        return timeUnit;
+    }
+    
+    public void setTimeUnit(String timeUnit) {
+        this.timeUnit = timeUnit;
+    }
+    
+    public int getTimeAmount() {
+        return timeAmount;
+    }
+    
+    public void setTimeAmount(int timeAmount) {
+        this.timeAmount = timeAmount;
+    }
+    
+    // Método para calcular si la misión ha expirado
+    public boolean checkIfExpired() {
+        long currentTime = System.currentTimeMillis();
+        this.isExpired = currentTime > deadlineTimestamp;
+        return this.isExpired;
+    }
+    
+    // Método para calcular el timestamp de deadline basado en tiempo y unidad
+    public void calculateDeadline() {
+        long currentTime = System.currentTimeMillis();
+        long additionalTime = 0;
+        
+        switch (timeUnit.toLowerCase()) {
+            case "minutos":
+                additionalTime = timeAmount * 60 * 1000L;
+                break;
+            case "horas":
+                additionalTime = timeAmount * 60 * 60 * 1000L;
+                break;
+            case "días":
+                additionalTime = timeAmount * 24 * 60 * 60 * 1000L;
+                break;
+            case "semanas":
+                additionalTime = timeAmount * 7 * 24 * 60 * 60 * 1000L;
+                break;
+            case "meses":
+                additionalTime = timeAmount * 30L * 24 * 60 * 60 * 1000L; // Aproximado
+                break;
+            case "años":
+                additionalTime = timeAmount * 365L * 24 * 60 * 60 * 1000L; // Aproximado
+                break;
+        }
+        
+        this.deadlineTimestamp = currentTime + additionalTime;
     }
 }

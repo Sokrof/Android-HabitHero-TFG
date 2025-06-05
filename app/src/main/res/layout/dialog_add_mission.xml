@@ -47,48 +47,42 @@
         android:textStyle="bold"
         android:layout_marginBottom="4dp" />
         
-    <LinearLayout
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/category_chip_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:chipSpacingHorizontal="8dp"
         android:layout_marginBottom="8dp">
         
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/category_chip_group"
-            android:layout_width="match_parent"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_economia"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            app:chipSpacingHorizontal="8dp">
+            android:text="Economía"
+            app:chipIcon="@drawable/ic_finanzas"
+            app:chipIconVisible="true"
+            style="@style/Widget.MaterialComponents.Chip.Choice" />
             
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_economia"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Economía"
-                app:chipIcon="@drawable/ic_finanzas"
-                app:chipIconVisible="true"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
-                
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_salud"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Salud"
-                app:chipIcon="@drawable/ic_salud"
-                app:chipIconVisible="true"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
-                
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_academico"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Académico"
-                app:chipIcon="@drawable/ic_academico"
-                app:chipIconVisible="true"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
-        </com.google.android.material.chip.ChipGroup>
-    </LinearLayout>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_salud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Salud"
+            app:chipIcon="@drawable/ic_salud"
+            app:chipIconVisible="true"
+            style="@style/Widget.MaterialComponents.Chip.Choice" />
+            
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_academico"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Académico"
+            app:chipIcon="@drawable/ic_academico"
+            app:chipIconVisible="true"
+            style="@style/Widget.MaterialComponents.Chip.Choice" />
+    </com.google.android.material.chip.ChipGroup>
     
     <!-- Dificultad con Chips e Iconos -->
     <TextView
@@ -149,19 +143,29 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp" />
     
-    <!-- TimePicker para Tiempo Disponible -->
+    <!-- Selector de Tiempo Límite Personalizado -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tiempo Disponible"
+        android:text="Tiempo Límite"
         android:textStyle="bold"
         android:layout_marginBottom="4dp" />
-        
-    <TimePicker
-        android:id="@+id/time_picker"
+    
+    <!-- Botón para seleccionar fecha y hora específica (opcional) -->
+    <Button
+        android:id="@+id/btn_select_deadline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:timePickerMode="spinner"
+        android:text="Seleccionar Fecha Límite Específica (Opcional)"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_marginBottom="8dp" />
+    
+    <TextView
+        android:id="@+id/tv_selected_deadline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fecha límite: Se calculará automáticamente"
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray"
         android:layout_marginBottom="16dp" />
-
 </LinearLayout>

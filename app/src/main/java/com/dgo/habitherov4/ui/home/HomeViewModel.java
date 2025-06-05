@@ -5,64 +5,131 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.dgo.habitherov4.models.Mission;
 import com.dgo.habitherov4.models.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeViewModel extends ViewModel {
-
-    private final MutableLiveData<User> currentUser;
-    private final MutableLiveData<List<Mission>> missions;
-    private final MutableLiveData<Boolean> isLoading;
-
+    private MutableLiveData<List<Mission>> missions = new MutableLiveData<>();
+    private MutableLiveData<User> currentUser = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
+    
     public HomeViewModel() {
-        currentUser = new MutableLiveData<>();
-        missions = new MutableLiveData<>();
-        isLoading = new MutableLiveData<>();
-        
-        loadUserData();
+        loadMissions();
+        loadCurrentUser();
     }
-
-    public LiveData<User> getCurrentUser() {
-        return currentUser;
+    
+    private void loadMissions() {
+        isLoading.setValue(true);
+        String userId = getCurrentUserId();
+        if (userId == null) {
+            isLoading.setValue(false);
+            return;
+        }
+        
+        // CAMBIO AQUÍ: Usar la misma estructura que DashboardViewModel
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("missions")
+            .addSnapshotListener((value, error) -> {
+                if (error != null) {
+                    android.util.Log.e("HomeViewModel", "Error loading missions", error);
+                    isLoading.setValue(false);
+                    return;
+                }
+                
+                List<Mission> missionList = new ArrayList<>();
+                if (value != null) {
+                    for (QueryDocumentSnapshot doc : value) {
+                        try {
+                            Mission mission = doc.toObject(Mission.class);
+                            if (mission != null) {
+                                mission.setId(doc.getId());
+                                missionList.add(mission);
+                            }
+                        } catch (Exception e) {
+                            android.util.Log.e("HomeViewModel", "Error parsing mission", e);
+                        }
+                    }
+                }
+                android.util.Log.d("HomeViewModel", "Loaded " + missionList.size() + " missions");
+                missions.setValue(missionList);
+                isLoading.setValue(false);
+            });
+    }
+    
+    private void loadCurrentUser() {
+        String userId = getCurrentUserId();
+        if (userId == null) return;
+        
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .addSnapshotListener((documentSnapshot, error) -> {
+                if (error != null) {
+                    android.util.Log.e("HomeViewModel", "Error loading user", error);
+                    return;
+                }
+                
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    try {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            user.setId(documentSnapshot.getId());
+                            currentUser.setValue(user);
+                        }
+                    } catch (Exception e) {
+                        android.util.Log.e("HomeViewModel", "Error parsing user", e);
+                    }
+                }
+            });
+    }
+    
+    private String getCurrentUserId() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            return auth.getCurrentUser().getUid();
+        }
+        return null;
     }
     
     public LiveData<List<Mission>> getMissions() {
         return missions;
     }
     
+    public LiveData<User> getCurrentUser() {
+        return currentUser;
+    }
+    
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
     }
     
-    private void loadUserData() {
-        // Aquí conectarías con Firebase para obtener datos reales
-        // Por ahora, datos de ejemplo basados en la imagen
-        User user = new User("Ricardo Sarnosa", 25, 75, 100, "");
-        currentUser.setValue(user);
-    }
-    
     public void completeMission(String missionId) {
-        List<Mission> currentMissions = missions.getValue();
-        if (currentMissions != null) {
-            for (Mission mission : currentMissions) {
-                if (mission.getId().equals(missionId)) {
-                    mission.setCompleted(true);
-                    mission.setProgress(mission.getMaxProgress());
-                    break;
-                }
-            }
-            missions.setValue(currentMissions);
-            
-            // Aquí actualizarías la experiencia del usuario
-            updateUserExperience();
+        if (missionId == null || missionId.isEmpty()) {
+            android.util.Log.w("HomeViewModel", "Mission ID is null or empty");
+            return;
         }
-    }
-    
-    private void updateUserExperience() {
-        User user = currentUser.getValue();
-        if (user != null) {
-            // Lógica para actualizar experiencia y nivel
-            currentUser.setValue(user);
-        }
+        
+        String userId = getCurrentUserId();
+        if (userId == null) return;
+        
+        // CAMBIO AQUÍ: Usar la misma estructura para completar misiones
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("missions")
+            .document(missionId)
+            .update("completed", true)
+            .addOnSuccessListener(aVoid -> {
+                android.util.Log.d("HomeViewModel", "Mission completed successfully");
+                // Las misiones se actualizarán automáticamente por el listener
+            })
+            .addOnFailureListener(e -> {
+                android.util.Log.e("HomeViewModel", "Error completing mission", e);
+            });
     }
 }
