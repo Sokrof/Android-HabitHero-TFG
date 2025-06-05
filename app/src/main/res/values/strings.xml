@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Habit Hero V4</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_home">Aventura</string>
+    <string name="title_dashboard">Misiones</string>
+    <string name="title_notifications">Stats</string>
     <string name="default_web_client_id" translatable="false">770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com</string>
     
     <!-- Nuevas strings -->
