@@ -20,6 +20,7 @@ import com.dgo.habitherov4.R;
 import com.dgo.habitherov4.adapters.MissionsAdapter;
 import com.dgo.habitherov4.databinding.FragmentDashboardBinding;
 import com.dgo.habitherov4.models.Mission;
+import com.dgo.habitherov4.ui.dialogs.AddMissionDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -68,10 +69,14 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         });
         
         // Configurar botón de añadir
+        // En el método onCreateView, modificar el listener del botón de añadir:
         FloatingActionButton addButton = binding.addMissionButton;
         addButton.setOnClickListener(v -> {
-            // Aquí se abriría un diálogo para añadir una nueva misión
-            Toast.makeText(getContext(), "Añadir nueva misión", Toast.LENGTH_SHORT).show();
+            AddMissionDialog dialog = new AddMissionDialog();
+            dialog.setOnMissionAddedListener(mission -> {
+                dashboardViewModel.addMission(mission);
+            });
+            dialog.show(getChildFragmentManager(), "AddMissionDialog");
         });
         
         // Observar cambios en las misiones

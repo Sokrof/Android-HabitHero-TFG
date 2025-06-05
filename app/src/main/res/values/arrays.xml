@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="mission_categories">
+        <item>Principal</item>
+        <item>Secundaria</item>
+        <item>Diaria</item>
+    </string-array>
+
+    <string-array name="mission_icon_types">
+        <item>Default</item>
+        <item>Study</item>
+        <item>Health</item>
+        <item>Food</item>
+    </string-array>
+</resources>
