@@ -10,13 +10,14 @@ public class Mission {
     private int maxProgress;
     private int expReward;
     private String iconType;
+    private String difficulty; // Nuevo campo para dificultad
     
     public Mission() {
         // Constructor vacío requerido para Firebase
     }
     
     public Mission(String id, String title, String description, String category, 
-                   boolean isCompleted, int progress, int maxProgress, int expReward, String iconType) {
+                   boolean isCompleted, int progress, int maxProgress, int expReward, String iconType, String difficulty) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -26,8 +27,9 @@ public class Mission {
         this.maxProgress = maxProgress;
         this.expReward = expReward;
         this.iconType = iconType;
+        this.difficulty = difficulty;
     }
-    
+
     // Getters y setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -55,6 +57,26 @@ public class Mission {
     
     public String getIconType() { return iconType; }
     public void setIconType(String iconType) { this.iconType = iconType; }
+    
+    public String getDifficulty() { return difficulty; }
+    public void setDifficulty(String difficulty) { 
+        this.difficulty = difficulty;
+        // Asignar automáticamente la experiencia basada en la dificultad
+        switch (difficulty) {
+            case "Fácil":
+                this.expReward = 50;
+                break;
+            case "Medio":
+                this.expReward = 160;
+                break;
+            case "Difícil":
+                this.expReward = 380;
+                break;
+            default:
+                this.expReward = 50;
+                break;
+        }
+    }
     
     public String getProgressText() {
         if (category.equals("Diaria") && maxProgress == 1) {

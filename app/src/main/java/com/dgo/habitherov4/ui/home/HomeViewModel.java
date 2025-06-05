@@ -20,7 +20,6 @@ public class HomeViewModel extends ViewModel {
         isLoading = new MutableLiveData<>();
         
         loadUserData();
-        loadMissions();
     }
 
     public LiveData<User> getCurrentUser() {
@@ -40,26 +39,6 @@ public class HomeViewModel extends ViewModel {
         // Por ahora, datos de ejemplo basados en la imagen
         User user = new User("Ricardo Sarnosa", 25, 75, 100, "");
         currentUser.setValue(user);
-    }
-    
-    private void loadMissions() {
-        isLoading.setValue(true);
-        
-        // Aquí conectarías con Firebase para obtener misiones reales
-        // Por ahora, datos de ejemplo basados en la imagen
-        List<Mission> missionList = new ArrayList<>();
-        
-        missionList.add(new Mission("1", "Aprobar DI", "Estudia!!", "Principal", 
-                true, 1, 1, 47, "study"));
-        
-        missionList.add(new Mission("2", "Ponte fuerte!", "Entrena", "Diaria", 
-                true, 1, 1, 47, "health"));
-        
-        missionList.add(new Mission("3", "Comer saludable", "Haz 5 comidas", "Diaria", 
-                false, 2, 5, 120, "food"));
-        
-        missions.setValue(missionList);
-        isLoading.setValue(false);
     }
     
     public void completeMission(String missionId) {

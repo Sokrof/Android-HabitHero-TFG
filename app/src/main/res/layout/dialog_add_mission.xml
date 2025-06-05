@@ -90,6 +90,51 @@
         </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
     
+    <!-- Dificultad con Chips e Iconos -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dificultad"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+        
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/difficulty_chip_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        android:layout_marginBottom="16dp">
+    
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_easy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fácil (50 EXP)"
+            app:chipIcon="@drawable/ic_facil"
+            app:chipIconVisible="true"
+            style="@style/Widget.MaterialComponents.Chip.Choice" />
+    
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medio (160 EXP)"
+            app:chipIcon="@drawable/ic_medio"
+            app:chipIconVisible="true"
+            style="@style/Widget.MaterialComponents.Chip.Choice" />
+    
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_hard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Difícil (380 EXP)"
+            app:chipIcon="@drawable/ic_dificil"
+            app:chipIconVisible="true"
+            style="@style/Widget.MaterialComponents.Chip.Choice" />
+    
+    </com.google.android.material.chip.ChipGroup>
+    
     <!-- Tipo de Misión (Spinner) -->
     <TextView
         android:layout_width="match_parent"
@@ -104,7 +149,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp" />
     
-    <!-- Selector de Tiempo -->
+    <!-- TimePicker para Tiempo Disponible -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -112,59 +157,11 @@
         android:textStyle="bold"
         android:layout_marginBottom="4dp" />
         
-    <LinearLayout
+    <TimePicker
+        android:id="@+id/time_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
-        
-        <EditText
-            android:id="@+id/time_value"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:hint="Cantidad" />
-            
-        <Spinner
-            android:id="@+id/time_unit_spinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="4dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_mission_max_progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Progreso máximo"
-                android:inputType="number" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_mission_exp_reward"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Recompensa EXP"
-                android:inputType="number" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
+        android:timePickerMode="spinner"
+        android:layout_marginBottom="16dp" />
 
 </LinearLayout>

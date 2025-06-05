@@ -36,8 +36,7 @@ public class DashboardViewModel extends ViewModel {
                     .collection("missions");
             loadMissions();
         } else {
-            // Si no hay usuario autenticado, cargar misiones de ejemplo
-            loadSampleMissions();
+
         }
     }
 
@@ -56,58 +55,11 @@ public class DashboardViewModel extends ViewModel {
                 }
                 missions.setValue(missionList);
             } else {
-                // Si hay un error, cargar misiones de ejemplo
-                loadSampleMissions();
+
             }
         });
     }
-    
-    private void loadSampleMissions() {
-        // Aquí cargaríamos las misiones desde Firebase o una base de datos local
-        // Por ahora, crearemos algunas misiones de ejemplo
-        List<Mission> missionList = new ArrayList<>();
-        
-        // Misión principal - Aprobar DI
-        missionList.add(new Mission(
-                UUID.randomUUID().toString(),
-                "Aprobar DI",
-                "Estudia!!",
-                "Principal",
-                false,
-                47,
-                120,
-                47,
-                "study"
-        ));
-        
-        // Misión secundaria - Limpiar la casa
-        missionList.add(new Mission(
-                UUID.randomUUID().toString(),
-                "Limpiar la casa",
-                "Mantén tu espacio ordenado",
-                "Secundaria",
-                false,
-                0,
-                1,
-                15,
-                "default"
-        ));
-        
-        // Misión secundaria - Hacer la compra
-        missionList.add(new Mission(
-                UUID.randomUUID().toString(),
-                "Hacer la compra",
-                "Compra alimentos saludables",
-                "Secundaria",
-                false,
-                0,
-                1,
-                20,
-                "food"
-        ));
-        
-        missions.setValue(missionList);
-    }
+
     
     public void addMission(Mission mission) {
         // Verificar si el usuario está autenticado
