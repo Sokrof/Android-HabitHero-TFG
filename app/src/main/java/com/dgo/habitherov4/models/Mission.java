@@ -10,11 +10,12 @@ public class Mission {
     private int maxProgress;
     private int expReward;
     private String iconType;
-    private String difficulty; // Nuevo campo para dificultad
-    private long deadlineTimestamp; // Timestamp de cuando expira la misión
+    private String difficulty;
+    private long deadlineTimestamp;
     private boolean isExpired;
-    private String timeUnit; // "minutos", "horas", "días", "semanas", "meses", "años"
-    private int timeAmount; // Cantidad de tiempo
+    private String timeUnit;
+    private int timeAmount;
+    private boolean isDailyMission; // Nuevo campo para identificar misiones diarias
     
     public Mission() {
         // Constructor vacío requerido para Firebase
@@ -161,5 +162,21 @@ public class Mission {
         }
         
         this.deadlineTimestamp = currentTime + additionalTime;
+    }
+    
+    public boolean isDailyMission() {
+        return isDailyMission;
+    }
+    
+    public void setDailyMission(boolean dailyMission) {
+        isDailyMission = dailyMission;
+    }
+    
+    // Método para configurar automáticamente misiones diarias
+    public void setupAsDailyMission() {
+        this.isDailyMission = true;
+        this.timeUnit = "días";
+        this.timeAmount = 1;
+        calculateDeadline();
     }
 }

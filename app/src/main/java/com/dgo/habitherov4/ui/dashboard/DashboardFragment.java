@@ -10,12 +10,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,9 +47,11 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
 
     private FragmentDashboardBinding binding;
     private DashboardViewModel dashboardViewModel;
-    private MissionsAdapter missionsAdapter;
+    private MissionsAdapter dailyMissionsAdapter;
+    private MissionsAdapter activeMissionsAdapter;
     private List<Mission> allMissions;
-    private List<Mission> filteredMissions;
+    private List<Mission> dailyMissions;
+    private List<Mission> activeMissions;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -57,88 +59,152 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-        // Inicializar RecyclerView
-        RecyclerView recyclerView = binding.missionsRecyclerView;
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        
+    
         // Inicializar listas
         allMissions = new ArrayList<>();
-        filteredMissions = new ArrayList<>();
+        dailyMissions = new ArrayList<>();
+        activeMissions = new ArrayList<>();
         
-        // Configurar adaptador
-        missionsAdapter = new MissionsAdapter(filteredMissions, this);
-        recyclerView.setAdapter(missionsAdapter);
+        // Inicializar RecyclerViews después de crear las listas
+        setupRecyclerViews();
         
         // Configurar búsqueda
         EditText searchEditText = binding.searchMissions;
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+    
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 filterMissions(s.toString());
             }
-
+    
             @Override
             public void afterTextChanged(Editable s) {}
         });
         
         // Configurar botón de añadir
-        // Modificar el listener del botón de añadir
         FloatingActionButton addButton = binding.addMissionButton;
         addButton.setOnClickListener(v -> {
-        // Mostrar diálogo para añadir una nueva misión
-        showAddMissionDialog();
+            showAddMissionDialog();
         });
         
         // Observar cambios en las misiones
         dashboardViewModel.getMissions().observe(getViewLifecycleOwner(), missions -> {
             allMissions = missions;
-            filteredMissions.clear();
-            filteredMissions.addAll(missions);
-            missionsAdapter.updateMissions(filteredMissions);
+            updateMissionsDisplay();
             updateMissionCounters();
         });
 
         return root;
     }
+
+    private void setupRecyclerViews() {
+        // Configurar RecyclerView para misiones diarias
+        RecyclerView dailyRecyclerView = binding.dailyMissionsRecyclerView;
+        dailyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        dailyMissionsAdapter = new MissionsAdapter(dailyMissions, this);
+        dailyRecyclerView.setAdapter(dailyMissionsAdapter);
+        
+        // Configurar RecyclerView para misiones activas
+        RecyclerView activeRecyclerView = binding.missionsRecyclerView;
+        activeRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        activeMissionsAdapter = new MissionsAdapter(activeMissions, this);
+        activeRecyclerView.setAdapter(activeMissionsAdapter);
+    }
+
+    private void updateMissionsDisplay() {
+        if (allMissions == null) return;
+        
+        // Asegurarse de que las listas estén inicializadas
+        if (dailyMissions == null) dailyMissions = new ArrayList<>();
+        if (activeMissions == null) activeMissions = new ArrayList<>();
+        
+        dailyMissions.clear();
+        activeMissions.clear();
+        
+        for (Mission mission : allMissions) {
+            if ("Diaria".equals(mission.getCategory())) {
+                dailyMissions.add(mission);
+            } else {
+                activeMissions.add(mission);
+            }
+        }
+        
+        // Actualizar adaptadores
+        dailyMissionsAdapter.updateMissions(dailyMissions);
+        activeMissionsAdapter.updateMissions(activeMissions);
+        
+        // Mostrar/ocultar sección de misiones diarias
+        if (dailyMissions.isEmpty()) {
+            binding.dailyMissionsSection.setVisibility(View.GONE);
+        } else {
+            binding.dailyMissionsSection.setVisibility(View.VISIBLE);
+        }
+    }
     
     private void filterMissions(String query) {
-        filteredMissions.clear();
         if (query.isEmpty()) {
-            filteredMissions.addAll(allMissions);
-        } else {
-            String lowerCaseQuery = query.toLowerCase();
-            for (Mission mission : allMissions) {
-                if (mission.getTitle().toLowerCase().contains(lowerCaseQuery) ||
-                    mission.getDescription().toLowerCase().contains(lowerCaseQuery) ||
-                    mission.getCategory().toLowerCase().contains(lowerCaseQuery)) {
-                    filteredMissions.add(mission);
+            updateMissionsDisplay();
+            return;
+        }
+        
+        List<Mission> filteredDaily = new ArrayList<>();
+        List<Mission> filteredActive = new ArrayList<>();
+        String lowerCaseQuery = query.toLowerCase();
+        
+        for (Mission mission : allMissions) {
+            if (mission.getTitle().toLowerCase().contains(lowerCaseQuery) ||
+                mission.getDescription().toLowerCase().contains(lowerCaseQuery) ||
+                mission.getCategory().toLowerCase().contains(lowerCaseQuery)) {
+                
+                if ("Diaria".equals(mission.getCategory())) {
+                    filteredDaily.add(mission);
+                } else {
+                    filteredActive.add(mission);
                 }
             }
         }
-        missionsAdapter.updateMissions(filteredMissions);
+        
+        // Actualizar listas filtradas
+        dailyMissions.clear();
+        dailyMissions.addAll(filteredDaily);
+        activeMissions.clear();
+        activeMissions.addAll(filteredActive);
+        
+        // Actualizar adaptadores
+        dailyMissionsAdapter.updateMissions(dailyMissions);
+        activeMissionsAdapter.updateMissions(activeMissions);
+        
+        // Mostrar/ocultar sección de misiones diarias
+        if (dailyMissions.isEmpty()) {
+            binding.dailyMissionsSection.setVisibility(View.GONE);
+        } else {
+            binding.dailyMissionsSection.setVisibility(View.VISIBLE);
+        }
     }
     
     private void updateMissionCounters() {
         // Actualizar contador de misiones activas
-        binding.activeMissionsCount.setText(String.valueOf(allMissions.size()));
+        binding.activeMissionsCount.setText(String.valueOf(activeMissions.size()));
         
-        // Aquí se actualizaría el contador de tiempo de misiones diarias
-        // y el estado de completado
-        int completedCount = 0;
-        for (Mission mission : allMissions) {
-            if (mission.isCompleted()) {
-                completedCount++;
-            }
-        }
-        
-        if (completedCount == allMissions.size() && !allMissions.isEmpty()) {
-            binding.dailyMissionsStatus.setText("Has completado tus misiones diarias!");
+        // Actualizar estado de misiones diarias
+        if (dailyMissions.isEmpty()) {
+            binding.dailyMissionsStatus.setText("No tienes misiones diarias");
         } else {
-            binding.dailyMissionsStatus.setText("Tienes misiones pendientes");
+            boolean allCompleted = true;
+            for (Mission mission : dailyMissions) {
+                if (!mission.isCompleted()) {
+                    allCompleted = false;
+                    break;
+                }
+            }
+            
+            if (allCompleted) {
+                binding.dailyMissionsStatus.setText("Has completado tus misiones diarias!");
+            } else {
+                binding.dailyMissionsStatus.setText("Tienes misiones pendientes");
+            }
         }
     }
 
@@ -181,6 +247,26 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         missionTypeSpinner.setAdapter(typeAdapter);
         
+        // Listener para ocultar/mostrar selector de fecha según el tipo de misión
+        missionTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedType = parent.getItemAtPosition(position).toString();
+                if ("Diaria".equals(selectedType)) {
+                    // Ocultar selector de fecha para misiones diarias
+                    selectDeadlineBtn.setVisibility(View.GONE);
+                    selectedDeadlineText.setText("Las misiones diarias se renuevan automáticamente cada 24 horas");
+                } else {
+                    // Mostrar selector de fecha para otros tipos
+                    selectDeadlineBtn.setVisibility(View.VISIBLE);
+                    selectedDeadlineText.setText("Fecha límite: Se calculará automáticamente");
+                }
+            }
+            
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    
         // Configurar selector de fecha límite específica
         selectDeadlineBtn.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
@@ -262,7 +348,8 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
             
             // Obtener tipo de misión
             String missionType = missionTypeSpinner.getSelectedItem().toString();
-
+            boolean isDailyMission = "Diaria".equals(missionType);
+            
             if (title.isEmpty() || description.isEmpty() || category.isEmpty() || 
                 difficulty.isEmpty()) {
                 Toast.makeText(getContext(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
@@ -278,28 +365,35 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
             } else if (category.equals("Académico")) {
                 iconType = "academico";
             }
-
+            
             Mission newMission = new Mission(
                     UUID.randomUUID().toString(),
                     title,
                     description,
-                    missionType,
+                    isDailyMission ? "Diaria" : category, // Si es diaria, usar "Diaria" como categoría
                     false,
                     0,
-                    1, // maxProgress siempre es 1
-                    0, // La experiencia se asignará automáticamente
+                    1,
+                    0,
                     iconType,
                     difficulty
             );
             
-            // Usar deadline personalizado si se seleccionó, sino calcular automáticamente
-            if (customDeadline[0] > 0) {
-                newMission.setDeadlineTimestamp(customDeadline[0]);
-            } else {
-                // Establecer valores predeterminados para el tiempo
+            // Configurar según el tipo de misión
+            if (isDailyMission) {
+                // Para misiones diarias, configurar automáticamente para 24 horas
                 newMission.setTimeAmount(1);
                 newMission.setTimeUnit("días");
                 newMission.calculateDeadline();
+            } else {
+                // Usar deadline personalizado si se seleccionó, sino calcular automáticamente
+                if (customDeadline[0] > 0) {
+                    newMission.setDeadlineTimestamp(customDeadline[0]);
+                } else {
+                    newMission.setTimeAmount(1);
+                    newMission.setTimeUnit("días");
+                    newMission.calculateDeadline();
+                }
             }
             
             // Asignar la dificultad

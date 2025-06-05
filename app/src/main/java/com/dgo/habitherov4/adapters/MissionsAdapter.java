@@ -41,7 +41,7 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
     
     @Override
     public int getItemCount() {
-        return missions.size();
+        return missions != null ? missions.size() : 0;
     }
     
     public void updateMissions(List<Mission> newMissions) {
