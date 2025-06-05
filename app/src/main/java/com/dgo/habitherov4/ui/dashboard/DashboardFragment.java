@@ -1,5 +1,6 @@
 package com.dgo.habitherov4.ui.dashboard;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,9 +22,11 @@ import com.dgo.habitherov4.adapters.MissionsAdapter;
 import com.dgo.habitherov4.databinding.FragmentDashboardBinding;
 import com.dgo.habitherov4.models.Mission;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class DashboardFragment extends Fragment implements MissionsAdapter.OnMissionClickListener {
 
@@ -68,10 +71,11 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         });
         
         // Configurar botón de añadir
+        // Modificar el listener del botón de añadir
         FloatingActionButton addButton = binding.addMissionButton;
         addButton.setOnClickListener(v -> {
-            // Aquí se abriría un diálogo para añadir una nueva misión
-            Toast.makeText(getContext(), "Añadir nueva misión", Toast.LENGTH_SHORT).show();
+        // Mostrar diálogo para añadir una nueva misión
+        showAddMissionDialog();
         });
         
         // Observar cambios en las misiones
@@ -133,5 +137,60 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void showAddMissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_mission, null);
+        builder.setView(dialogView);
+    
+        // Referencias a los campos del diálogo
+        TextInputEditText titleInput = dialogView.findViewById(R.id.edit_mission_title);
+        TextInputEditText descriptionInput = dialogView.findViewById(R.id.edit_mission_description);
+        TextInputEditText categoryInput = dialogView.findViewById(R.id.edit_mission_category);
+        TextInputEditText maxProgressInput = dialogView.findViewById(R.id.edit_mission_max_progress);
+        TextInputEditText expRewardInput = dialogView.findViewById(R.id.edit_mission_exp_reward);
+    
+        // Configurar botones del diálogo
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            // Validar campos
+            String title = titleInput.getText().toString().trim();
+            String description = descriptionInput.getText().toString().trim();
+            String category = categoryInput.getText().toString().trim();
+            String maxProgressStr = maxProgressInput.getText().toString().trim();
+            String expRewardStr = expRewardInput.getText().toString().trim();
+    
+            if (title.isEmpty() || description.isEmpty() || category.isEmpty() ||
+                    maxProgressStr.isEmpty() || expRewardStr.isEmpty()) {
+                Toast.makeText(getContext(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+    
+            // Crear nueva misión
+            int maxProgress = Integer.parseInt(maxProgressStr);
+            int expReward = Integer.parseInt(expRewardStr);
+    
+            Mission newMission = new Mission(
+                    UUID.randomUUID().toString(),
+                    title,
+                    description,
+                    category,
+                    false,
+                    0,
+                    maxProgress,
+                    expReward,
+                    "default" // Tipo de icono por defecto
+            );
+    
+            // Guardar la misión usando el ViewModel
+            dashboardViewModel.addMission(newMission);
+            Toast.makeText(getContext(), "Misión añadida correctamente", Toast.LENGTH_SHORT).show();
+        });
+    
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+    
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
