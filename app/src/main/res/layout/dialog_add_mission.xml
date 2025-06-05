@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -37,18 +38,100 @@
             android:layout_height="wrap_content"
             android:hint="Descripción" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
+    
+    <!-- Categoría con Chips -->
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Categoría"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+        
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginBottom="8dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_mission_category"
+        
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/category_chip_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Categoría (Principal, Secundaria, Diaria)" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:chipSpacingHorizontal="8dp">
+            
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_economia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Economía"
+                app:chipIcon="@drawable/ic_finanzas"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_salud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Salud"
+                app:chipIcon="@drawable/ic_salud"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_academico"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Académico"
+                app:chipIcon="@drawable/ic_academico"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        </com.google.android.material.chip.ChipGroup>
+    </LinearLayout>
+    
+    <!-- Tipo de Misión (Spinner) -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tipo de Misión"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+        
+    <Spinner
+        android:id="@+id/mission_type_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" />
+    
+    <!-- Selector de Tiempo -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiempo Disponible"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+        
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+        
+        <EditText
+            android:id="@+id/time_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:hint="Cantidad" />
+            
+        <Spinner
+            android:id="@+id/time_unit_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
