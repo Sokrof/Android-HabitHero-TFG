@@ -18,6 +18,7 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
     
     public interface OnMissionClickListener {
         void onMissionClick(Mission mission);
+        void onEditMissionClick(Mission mission);
     }
     
     public MissionsAdapter(List<Mission> missions, OnMissionClickListener listener) {
@@ -54,7 +55,6 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
         private TextView titleTextView;
         private TextView descriptionTextView;
         private TextView categoryTextView;
-        private TextView progressTextView;
         private TextView expTextView;
         
         public MissionViewHolder(@NonNull View itemView) {
@@ -63,9 +63,9 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             titleTextView = itemView.findViewById(R.id.mission_title);
             descriptionTextView = itemView.findViewById(R.id.mission_description);
             categoryTextView = itemView.findViewById(R.id.mission_category);
-            progressTextView = itemView.findViewById(R.id.mission_progress);
             expTextView = itemView.findViewById(R.id.mission_exp);
             
+            // Click en toda la card para mostrar el alert dialog
             itemView.setOnClickListener(v -> {
                 if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
                     listener.onMissionClick(missions.get(getAdapterPosition()));
@@ -77,7 +77,6 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             titleTextView.setText(mission.getTitle());
             descriptionTextView.setText(mission.getDescription());
             categoryTextView.setText(mission.getCategory());
-            progressTextView.setText(mission.getProgressText());
             expTextView.setText(mission.getExpReward() + ":00");
             
             // Configurar icono según el tipo
@@ -99,7 +98,6 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             // Cambiar apariencia si está completado
             if (mission.isCompleted()) {
                 itemView.setAlpha(0.7f);
-                progressTextView.setText("Realizado");
             } else {
                 itemView.setAlpha(1.0f);
             }

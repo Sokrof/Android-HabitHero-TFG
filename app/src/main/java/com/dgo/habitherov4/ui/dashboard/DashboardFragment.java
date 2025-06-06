@@ -300,8 +300,32 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
     
     @Override
     public void onMissionClick(Mission mission) {
-        // Aquí se manejaría el clic en una misión
-        Toast.makeText(getContext(), "Misión seleccionada: " + mission.getTitle(), Toast.LENGTH_SHORT).show();
+        // Mostrar AlertDialog con opciones "Completar" y "Editar"
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(mission.getTitle())
+                .setMessage("¿Qué deseas hacer con esta misión?")
+                .setPositiveButton("Completar", (dialog, which) -> {
+                    if (!mission.isCompleted()) {
+                        dashboardViewModel.completeMission(mission.getId());
+                        Toast.makeText(getContext(), "¡Misión completada! +" + mission.getExpReward() + " EXP", 
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Esta misión ya está completada", 
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNeutralButton("Editar", (dialog, which) -> {
+                    onEditMissionClick(mission);
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    @Override
+    public void onEditMissionClick(Mission mission) {
+
     }
 
     @Override

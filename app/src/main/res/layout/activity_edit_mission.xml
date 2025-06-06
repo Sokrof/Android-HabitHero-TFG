@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Editar Misión"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Título" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/descriptionEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Descripción" />
+        </com.google.android.material.textfield.TextInputLayout>
+        
+        <!-- Categoría con Chips -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Categoría"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+            
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/category_chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:chipSpacingHorizontal="8dp"
+            android:layout_marginBottom="8dp">
+            
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_economia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Economía"
+                app:chipIcon="@drawable/ic_finanzas"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_salud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Salud"
+                app:chipIcon="@drawable/ic_salud"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+                
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_academico"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Académico"
+                app:chipIcon="@drawable/ic_academico"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        </com.google.android.material.chip.ChipGroup>
+        
+        <!-- Dificultad con Chips e Iconos -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dificultad"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+            
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/difficulty_chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:layout_marginBottom="16dp">
+        
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_easy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fácil (50 EXP)"
+                app:chipIcon="@drawable/ic_facil"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Medio (160 EXP)"
+                app:chipIcon="@drawable/ic_medio"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_hard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Difícil (380 EXP)"
+                app:chipIcon="@drawable/ic_dificil"
+                app:chipIconVisible="true"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Fecha límite -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Fecha límite"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/dateButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="07/06/2025"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GUARDAR CAMBIOS"
+            android:backgroundTint="@color/design_default_color_primary"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ELIMINAR MISIÓN"
+            android:backgroundTint="@color/design_default_color_error"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</ScrollView>

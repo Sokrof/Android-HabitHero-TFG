@@ -118,4 +118,42 @@ public class DashboardViewModel extends ViewModel {
             missions.setValue(currentMissions);
         }
     }
+    
+    public void completeMission(String missionId) {
+        if (missionId == null || missionId.isEmpty()) {
+            Log.w("DashboardViewModel", "Mission ID is null or empty");
+            return;
+        }
+        
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null && missionsCollection != null) {
+            // Update mission as completed in Firestore
+            missionsCollection.document(missionId)
+                    .update("completed", true)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("DashboardViewModel", "Mission completed successfully");
+                        // Update local mission list
+                        updateLocalMissionCompletion(missionId);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("DashboardViewModel", "Error completing mission", e);
+                    });
+        } else {
+            // If no authenticated user, only update local list
+            updateLocalMissionCompletion(missionId);
+        }
+    }
+    
+    private void updateLocalMissionCompletion(String missionId) {
+        List<Mission> currentMissions = missions.getValue();
+        if (currentMissions != null) {
+            for (Mission mission : currentMissions) {
+                if (mission.getId().equals(missionId)) {
+                    mission.setCompleted(true);
+                    break;
+                }
+            }
+            missions.setValue(currentMissions);
+        }
+    }
 }
