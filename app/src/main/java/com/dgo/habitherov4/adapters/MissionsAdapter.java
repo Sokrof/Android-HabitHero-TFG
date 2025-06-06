@@ -1,5 +1,8 @@
 package com.dgo.habitherov4.adapters;
 
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,10 +10,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.dgo.habitherov4.R;
 import com.dgo.habitherov4.models.Mission;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.MissionViewHolder> {
     
@@ -42,6 +47,12 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
     }
     
     @Override
+    public void onViewRecycled(@NonNull MissionViewHolder holder) {
+        super.onViewRecycled(holder);
+        holder.stopCountdown();
+    }
+    
+    @Override
     public int getItemCount() {
         return missions != null ? missions.size() : 0;
     }
@@ -57,7 +68,9 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
         private TextView descriptionTextView;
         private TextView categoryTextView;
         private TextView expTextView;
-        private LinearLayout cardContainer; // Agregar esta línea
+        private LinearLayout cardContainer;
+        private Handler handler;
+        private Runnable countdownRunnable;
         
         public MissionViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,7 +79,8 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             descriptionTextView = itemView.findViewById(R.id.mission_description);
             categoryTextView = itemView.findViewById(R.id.mission_category);
             expTextView = itemView.findViewById(R.id.mission_exp);
-            cardContainer = itemView.findViewById(R.id.mission_card_container); // Agregar esta línea
+            cardContainer = itemView.findViewById(R.id.mission_card_container);
+            handler = new Handler(Looper.getMainLooper());
             
             // Click en toda la card para mostrar el alert dialog
             itemView.setOnClickListener(v -> {
@@ -80,7 +94,21 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             titleTextView.setText(mission.getTitle());
             descriptionTextView.setText(mission.getDescription());
             categoryTextView.setText(mission.getCategory());
-            expTextView.setText(mission.getExpReward() + ":00");
+            
+            // Detener contador anterior si existe
+            if (countdownRunnable != null) {
+                handler.removeCallbacks(countdownRunnable);
+            }
+            
+            // Verificar si la misión está completada
+            if (mission.isCompleted()) {
+                expTextView.setText("COMPLETADO");
+                expTextView.setTextColor(Color.GREEN);
+                expTextView.setBackgroundResource(R.drawable.timer_background);
+            } else {
+                // Iniciar contador de tiempo
+                startCountdown(mission);
+            }
             
             // Configurar background según dificultad
             String difficulty = mission.getDifficulty();
@@ -140,6 +168,74 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
                 itemView.setAlpha(0.7f);
             } else {
                 itemView.setAlpha(1.0f);
+            }
+        }
+        
+        private void startCountdown(Mission mission) {
+            countdownRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    // Verificar si la misión se completó durante el contador
+                    if (mission.isCompleted()) {
+                        expTextView.setText("COMPLETADO");
+                        expTextView.setTextColor(Color.GREEN);
+                        expTextView.setBackgroundResource(R.drawable.timer_background);
+                        return;
+                    }
+                    
+                    long currentTime = System.currentTimeMillis();
+                    long timeRemaining = mission.getDeadlineTimestamp() - currentTime;
+                    
+                    if (timeRemaining <= 0) {
+                        // Tiempo agotado - cancelar misión
+                        mission.setExpired(true);
+                        expTextView.setText("EXPIRADO");
+                        expTextView.setTextColor(Color.RED);
+                        expTextView.setBackgroundResource(R.drawable.timer_background);
+                        return;
+                    }
+                    
+                    // Convertir tiempo restante a formato legible
+                    String timeText = formatTimeRemaining(timeRemaining);
+                    expTextView.setText(timeText);
+                    expTextView.setBackgroundResource(R.drawable.timer_background);
+                    
+                    // Cambiar color según el tiempo restante
+                    if (timeRemaining < TimeUnit.HOURS.toMillis(1)) {
+                        // Menos de 1 hora - rojo
+                        expTextView.setTextColor(Color.RED);
+                    } else {
+                        // Más de 1 hora - amarillo
+                        expTextView.setTextColor(Color.YELLOW);
+                    }
+                    
+                    // Programar siguiente actualización en 1 segundo
+                    handler.postDelayed(this, 1000);
+                }
+            };
+            
+            // Iniciar el contador
+            handler.post(countdownRunnable);
+        }
+        
+        private String formatTimeRemaining(long timeInMillis) {
+            long days = TimeUnit.MILLISECONDS.toDays(timeInMillis);
+            long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis) % 24;
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % 60;
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % 60;
+            
+            if (days > 0) {
+                return String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
+            } else if (hours > 0) {
+                return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+            } else {
+                return String.format("%02d:%02d", minutes, seconds);
+            }
+        }
+        
+        public void stopCountdown() {
+            if (countdownRunnable != null) {
+                handler.removeCallbacks(countdownRunnable);
             }
         }
     }
