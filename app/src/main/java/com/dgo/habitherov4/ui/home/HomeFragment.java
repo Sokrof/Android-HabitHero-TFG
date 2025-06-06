@@ -33,7 +33,6 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
 
         setupRecyclerView();
         setupObservers();
-        setupClickListeners();
 
         return root;
     }
@@ -63,17 +62,6 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
             binding.userLevel.setText("Nivel: " + user.getLevel());
             binding.expProgress.setProgress(user.getExpPercentage());
         }
-    }
-    
-    private void setupClickListeners() {
-        binding.btnRewards.setOnClickListener(v -> {
-            // Navegar a recompensas
-            Toast.makeText(getContext(), "Recompensas próximamente", Toast.LENGTH_SHORT).show();
-        });
-        
-        binding.btnMissions.setOnClickListener(v -> {
-            // Ya estamos en misiones
-        });
     }
 
     @Override
