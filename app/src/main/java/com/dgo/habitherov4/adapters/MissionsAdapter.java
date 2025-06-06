@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,6 +57,7 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
         private TextView descriptionTextView;
         private TextView categoryTextView;
         private TextView expTextView;
+        private LinearLayout cardContainer; // Agregar esta línea
         
         public MissionViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -64,6 +66,7 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             descriptionTextView = itemView.findViewById(R.id.mission_description);
             categoryTextView = itemView.findViewById(R.id.mission_category);
             expTextView = itemView.findViewById(R.id.mission_exp);
+            cardContainer = itemView.findViewById(R.id.mission_card_container); // Agregar esta línea
             
             // Click en toda la card para mostrar el alert dialog
             itemView.setOnClickListener(v -> {
@@ -79,20 +82,57 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             categoryTextView.setText(mission.getCategory());
             expTextView.setText(mission.getExpReward() + ":00");
             
-            // Configurar icono según el tipo
-            switch (mission.getIconType()) {
-                case "study":
-                    iconImageView.setImageResource(R.drawable.ic_study);
-                    break;
-                case "health":
-                    iconImageView.setImageResource(R.drawable.ic_health);
-                    break;
-                case "food":
-                    iconImageView.setImageResource(R.drawable.ic_food);
-                    break;
-                default:
-                    iconImageView.setImageResource(R.drawable.ic_default_mission);
-                    break;
+            // Configurar background según dificultad
+            String difficulty = mission.getDifficulty();
+            if (difficulty != null) {
+                switch (difficulty.toLowerCase()) {
+                    case "easy":
+                    case "fácil":
+                    case "facil":
+                        cardContainer.setBackgroundResource(R.drawable.mission_card_background_easy);
+                        break;
+                    case "normal":
+                    case "medio":
+                        cardContainer.setBackgroundResource(R.drawable.mission_card_background_normal);
+                        break;
+                    case "hard":
+                    case "difícil":
+                    case "dificil":
+                        cardContainer.setBackgroundResource(R.drawable.mission_card_background_hard);
+                        break;
+                    default:
+                        cardContainer.setBackgroundResource(R.drawable.mission_card_background);
+                        break;
+                }
+            }
+            
+            // Configurar icono según la categoría o tipo de misión
+            if (mission.isDailyMission()) {
+                iconImageView.setImageResource(R.drawable.ic_reloj);
+            } else {
+                switch (mission.getCategory().toLowerCase()) {
+                    case "académico":
+                    case "academico":
+                        iconImageView.setImageResource(R.drawable.ic_academico);
+                        break;
+                    case "salud":
+                        iconImageView.setImageResource(R.drawable.ic_salud);
+                        break;
+                    case "economía":
+                    case "economia":
+                    case "finanzas":
+                        iconImageView.setImageResource(R.drawable.ic_finanzas);
+                        break;
+                    case "aventura":
+                        iconImageView.setImageResource(R.drawable.ic_aventura);
+                        break;
+                    case "diaria":
+                        iconImageView.setImageResource(R.drawable.ic_reloj);
+                        break;
+                    default:
+                        iconImageView.setImageResource(R.drawable.ic_default_mission);
+                        break;
+                }
             }
             
             // Cambiar apariencia si está completado
