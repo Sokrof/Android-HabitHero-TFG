@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -53,6 +55,10 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
     private List<Mission> dailyMissions;
     private List<Mission> activeMissions;
 
+    // Agregar estas nuevas variables para el contador
+    private Handler countdownHandler;
+    private Runnable countdownRunnable;
+    
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         dashboardViewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
@@ -67,6 +73,9 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         
         // Inicializar RecyclerViews después de crear las listas
         setupRecyclerViews();
+        
+        // Inicializar el contador de misiones diarias
+        initializeDailyMissionsCountdown();
         
         // Configurar búsqueda
         EditText searchEditText = binding.searchMissions;
@@ -208,6 +217,87 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         }
     }
 
+    // Nuevo método para inicializar el contador de misiones diarias
+    private void initializeDailyMissionsCountdown() {
+        countdownHandler = new Handler(Looper.getMainLooper());
+        countdownRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateDailyMissionsCountdown();
+                // Actualizar cada minuto (60000 ms)
+                countdownHandler.postDelayed(this, 60000);
+            }
+        };
+        
+        // Iniciar el contador inmediatamente
+        updateDailyMissionsCountdown();
+        // Programar la primera actualización en 1 minuto
+        countdownHandler.postDelayed(countdownRunnable, 60000);
+    }
+    
+    // Nuevo método para actualizar el contador de misiones diarias
+    private void updateDailyMissionsCountdown() {
+        Calendar now = Calendar.getInstance();
+        Calendar resetTime = Calendar.getInstance();
+        
+        // Configurar las 00:01 del día siguiente
+        resetTime.add(Calendar.DAY_OF_MONTH, 1);
+        resetTime.set(Calendar.HOUR_OF_DAY, 0);
+        resetTime.set(Calendar.MINUTE, 1);  // Cambiar a 00:01 en lugar de 00:00
+        resetTime.set(Calendar.SECOND, 0);
+        resetTime.set(Calendar.MILLISECOND, 0);
+        
+        long timeUntilReset = resetTime.getTimeInMillis() - now.getTimeInMillis();
+        
+        // Si el tiempo es negativo o cero, las misiones deben restablecerse
+        if (timeUntilReset <= 0) {
+            resetDailyMissions();
+            // Recalcular para el próximo día
+            resetTime.add(Calendar.DAY_OF_MONTH, 1);
+            timeUntilReset = resetTime.getTimeInMillis() - now.getTimeInMillis();
+        }
+        
+        // Convertir a horas y minutos
+        long hours = timeUntilReset / (1000 * 60 * 60);
+        long minutes = (timeUntilReset % (1000 * 60 * 60)) / (1000 * 60);
+        
+        // Actualizar el TextView
+        String countdownText = String.format(Locale.getDefault(), "%d h %d min", hours, minutes);
+        binding.dailyMissionsTime.setText(countdownText);
+    }
+    
+    // Nuevo método para restablecer las misiones diarias
+    private void resetDailyMissions() {
+        if (allMissions != null) {
+            boolean hasChanges = false;
+            for (Mission mission : allMissions) {
+                if ("Diaria".equals(mission.getCategory()) && mission.isCompleted()) {
+                    mission.setCompleted(false);
+                    mission.setProgress(0);
+                    // Recalcular deadline para el próximo día
+                    mission.setupAsDailyMission();
+                    hasChanges = true;
+                }
+            }
+            
+            if (hasChanges) {
+                // Actualizar en la base de datos
+                for (Mission mission : allMissions) {
+                    if ("Diaria".equals(mission.getCategory())) {
+                        dashboardViewModel.updateMission(mission);
+                    }
+                }
+                
+                // Actualizar la UI
+                updateMissionsDisplay();
+                updateMissionCounters();
+                
+                // Mostrar notificación al usuario
+                Toast.makeText(getContext(), "¡Las misiones diarias se han restablecido!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
     @Override
     public void onMissionClick(Mission mission) {
         // Aquí se manejaría el clic en una misión
@@ -217,6 +307,12 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        
+        // Limpiar el handler para evitar memory leaks
+        if (countdownHandler != null && countdownRunnable != null) {
+            countdownHandler.removeCallbacks(countdownRunnable);
+        }
+        
         binding = null;
     }
 

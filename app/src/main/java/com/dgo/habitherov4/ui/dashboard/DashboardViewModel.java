@@ -1,5 +1,7 @@
 package com.dgo.habitherov4.ui.dashboard;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -59,8 +61,6 @@ public class DashboardViewModel extends ViewModel {
             }
         });
     }
-
-    
     public void addMission(Mission mission) {
         // Verificar si el usuario está autenticado
         FirebaseUser currentUser = mAuth.getCurrentUser();
