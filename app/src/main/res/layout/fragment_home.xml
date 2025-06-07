@@ -4,69 +4,82 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_blue"
+    android:background="@android:color/transparent"
     android:orientation="vertical"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- Header con perfil de usuario -->
-    <LinearLayout
+    <!-- Header extendido con fondo de paisaje y barras superpuestas -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:background="@color/blue"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="24dp"
-        android:paddingBottom="16dp"
-        android:paddingHorizontal="16dp">
+        android:layout_height="300dp"
+        android:layout_marginTop="-40dp"
+        android:background="@drawable/fondo2"
+        android:paddingTop="56dp"
+        android:paddingBottom="16dp">
 
-        <!-- Nivel -->
-        <TextView
-            android:id="@+id/user_level"
-            android:layout_width="wrap_content"
+        <!-- Barras de estado superpuestas en la parte superior -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Nivel: 25"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_alignParentTop="true"
+            android:orientation="horizontal">
 
-        <!-- Avatar con barra de progreso circular -->
-        <FrameLayout
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginVertical="12dp">
-
-            <ProgressBar
-                android:id="@+id/exp_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="75"
-                android:progressDrawable="@drawable/circular_progress" />
-
+            <!-- Barra de Vida -->
             <ImageView
-                android:id="@+id/user_avatar"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:background="@drawable/circle_background_white"
-                android:padding="16dp"
-                android:src="@drawable/ic_user_placeholder" />
+                android:id="@+id/health_bar"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:scaleType="fitXY"
+                android:src="@drawable/hp_5" />
 
-        </FrameLayout>
+            <!-- Barra de Maná -->
+            <ImageView
+                android:id="@+id/mana_bar"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:src="@drawable/mp_5"
+                android:scaleType="fitXY" />
 
-        <!-- Nombre de usuario -->
-        <TextView
-            android:id="@+id/user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ricardo Sarnosa"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            <!-- Barra de Experiencia -->
+            <ImageView
+                android:id="@+id/experience_bar"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:src="@drawable/exp_0"
+                android:scaleType="fitXY" />
+
+        </LinearLayout>
+
+        <!-- Personaje animado en el lado izquierdo -->
+
+        <!-- Enemigo animado en el lado derecho -->
+
+        <ImageView
+            android:id="@+id/character_gif"
+            android:layout_width="119dp"
+            android:layout_height="138dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="59dp"
+            android:layout_marginBottom="12dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/personaje" />
+
+        <ImageView
+            android:id="@+id/enemy_gif"
+            android:layout_width="118dp"
+            android:layout_height="81dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="75dp"
+            android:layout_marginBottom="44dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/enemigo" />
+
+    </RelativeLayout>
 
     <!-- Lista de misiones con scroll infinito -->
     <androidx.recyclerview.widget.RecyclerView

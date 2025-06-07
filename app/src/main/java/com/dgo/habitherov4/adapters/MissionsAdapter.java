@@ -117,16 +117,16 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
                     case "easy":
                     case "fácil":
                     case "facil":
-                        cardContainer.setBackgroundResource(R.drawable.mission_card_background_easy);
+                        cardContainer.setBackgroundResource(R.drawable.bronce);
                         break;
                     case "normal":
                     case "medio":
-                        cardContainer.setBackgroundResource(R.drawable.mission_card_background_normal);
+                        cardContainer.setBackgroundResource(R.drawable.plata);
                         break;
                     case "hard":
                     case "difícil":
                     case "dificil":
-                        cardContainer.setBackgroundResource(R.drawable.mission_card_background_hard);
+                        cardContainer.setBackgroundResource(R.drawable.oro);
                         break;
                     default:
                         cardContainer.setBackgroundResource(R.drawable.mission_card_background);

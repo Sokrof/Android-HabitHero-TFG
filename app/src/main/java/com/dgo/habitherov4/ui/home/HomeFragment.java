@@ -12,7 +12,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.bumptech.glide.Glide;
 import com.dgo.habitherov4.EditMissionActivity;
+import com.dgo.habitherov4.R;
 import com.dgo.habitherov4.adapters.MissionsAdapter;
 import com.dgo.habitherov4.databinding.FragmentHomeBinding;
 import com.dgo.habitherov4.models.Mission;
@@ -34,8 +36,23 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
 
         setupRecyclerView();
         observeViewModel();
+        setupCharacterAnimation();
 
         return root;
+    }
+
+    private void setupCharacterAnimation() {
+        // Cargar el GIF animado del personaje usando Glide
+        Glide.with(this)
+                .asGif()
+                .load(R.drawable.personaje)
+                .into(binding.characterGif);
+        
+        // Cargar el GIF animado del enemigo usando Glide
+        Glide.with(this)
+                .asGif()
+                .load(R.drawable.enemigo)
+                .into(binding.enemyGif);
     }
 
     private void setupRecyclerView() {
@@ -45,8 +62,6 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     }
 
     private void observeViewModel() {
-        homeViewModel.getCurrentUser().observe(getViewLifecycleOwner(), this::updateUserUI);
-        
         homeViewModel.getMissions().observe(getViewLifecycleOwner(), missions -> {
             if (missions != null) {
                 missionsAdapter.updateMissions(missions);
@@ -56,14 +71,6 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
         homeViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
             // Aquí podrías mostrar/ocultar un loading indicator
         });
-    }
-    
-    private void updateUserUI(User user) {
-        if (user != null) {
-            binding.userName.setText(user.getName());
-            binding.userLevel.setText("Nivel: " + user.getLevel());
-            binding.expProgress.setProgress(user.getExpPercentage());
-        }
     }
 
     @Override
