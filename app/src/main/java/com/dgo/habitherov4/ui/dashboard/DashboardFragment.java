@@ -273,8 +273,6 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
             for (Mission mission : allMissions) {
                 if ("Diaria".equals(mission.getCategory()) && mission.isCompleted()) {
                     mission.setCompleted(false);
-                    mission.setProgress(0);
-                    // Recalcular deadline para el próximo día
                     mission.setupAsDailyMission();
                     hasChanges = true;
                 }
@@ -307,10 +305,10 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                 .setPositiveButton("Completar", (dialog, which) -> {
                     if (!mission.isCompleted()) {
                         dashboardViewModel.completeMission(mission.getId());
-                        Toast.makeText(getContext(), "¡Misión completada! +" + mission.getExpReward() + " EXP", 
+                        Toast.makeText(getContext(), "¡Misión completada! +" + mission.getManaReward() + " Maná",
                                 Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getContext(), "Esta misión ya está completada", 
+                        Toast.makeText(getContext(), "Esta misión ya está completada",
                                 Toast.LENGTH_SHORT).show();
                     }
                 })
@@ -490,11 +488,11 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                     UUID.randomUUID().toString(),
                     title,
                     description,
-                    isDailyMission ? "Diaria" : category, // Si es diaria, usar "Diaria" como categoría
+                    isDailyMission ? "Diaria" : category,
                     false,
-                    0,
-                    1,
-                    0,
+                    // ELIMINAR: 0,  // progress
+                    // ELIMINAR: 1,  // maxProgress
+                    0,  // manaReward (se asignará automáticamente por setDifficulty)
                     iconType,
                     difficulty
             );

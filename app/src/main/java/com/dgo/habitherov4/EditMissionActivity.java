@@ -161,6 +161,21 @@ public class EditMissionActivity extends AppCompatActivity {
         }
     }
     
+    private int getManaForDifficulty(String difficulty) {
+        switch (difficulty.toLowerCase()) {
+            case "fácil":
+            case "facil":
+                return 1;  // Fácil = 1 maná
+            case "medio":
+                return 2;  // Medio = 2 maná
+            case "difícil":
+            case "dificil":
+                return 3;  // Difícil = 3 maná
+            default:
+                return 1;
+        }
+    }
+    
     private void showDatePicker() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
             this,
@@ -214,7 +229,7 @@ public class EditMissionActivity extends AppCompatActivity {
         updates.put("description", description);
         updates.put("category", category);
         updates.put("difficulty", difficulty);
-        updates.put("expReward", getExpForDifficulty(difficulty));
+        updates.put("manaReward", getManaForDifficulty(difficulty));  // CAMBIAR de expReward a manaReward
         updates.put("deadline", selectedDateTimestamp);
         
         // Actualizar en Firestore

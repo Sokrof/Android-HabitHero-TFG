@@ -2,6 +2,7 @@ package com.dgo.habitherov4.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,25 +66,129 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
         homeViewModel.getMissions().observe(getViewLifecycleOwner(), missions -> {
             if (missions != null) {
                 missionsAdapter.updateMissions(missions);
+                Log.d("HomeFragment", "Missions updated: " + missions.size());
+            }
+        });
+        
+        // OBSERVAR CAMBIOS EN EL USUARIO PARA ACTUALIZAR BARRAS
+        homeViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                Log.d("HomeFragment", "=== USER DATA CHANGED ===");
+                Log.d("HomeFragment", "User stats received - HP: " + user.getCurrentHp() + "/" + user.getMaxHp() +
+                      ", MP: " + user.getCurrentMana() + "/" + user.getMaxMana() + 
+                      ", EXP: " + user.getCurrentExp() + "/" + user.getMaxExp());
+                updateAllStatBars(user);
+            } else {
+                Log.w("HomeFragment", "User is null - setting default bars");
+                // Si no hay usuario, mostrar barras por defecto
+                updateHpBar(5);    // HP completa
+                updateManaBar(1);  // MP a 1
+                updateExpBar(0);   // EXP a 0
             }
         });
         
         homeViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            // Aquí podrías mostrar/ocultar un loading indicator
+            if (isLoading != null) {
+                Log.d("HomeFragment", "Loading state: " + isLoading);
+            }
         });
+    }
+
+    private void updateAllStatBars(User user) {
+        Log.d("HomeFragment", "=== UPDATING ALL STAT BARS ===");
+        
+        int hpLevel = user.getHpBarLevel();
+        int manaLevel = user.getManaBarLevel();
+        int expLevel = user.getExpBarLevel();
+        
+        Log.d("HomeFragment", "Calculated bar levels - HP: " + hpLevel + ", MP: " + manaLevel + ", EXP: " + expLevel);
+        
+        updateHpBar(hpLevel);
+        updateManaBar(manaLevel);
+        updateExpBar(expLevel);
+        
+        Log.d("HomeFragment", "=== STAT BARS UPDATE COMPLETE ===");
+    }
+
+    private void updateManaBar(int manaLevel) {
+        // Asegurar que el nivel esté en el rango válido
+        int level = Math.max(0, Math.min(5, manaLevel));
+        String drawableName = "mp_" + level;
+        
+        Log.d("HomeFragment", "Updating mana bar to level: " + level + " (drawable: " + drawableName + ")");
+        
+        try {
+            int resourceId = getResources().getIdentifier(drawableName, "drawable", requireContext().getPackageName());
+            if (resourceId != 0) {
+                binding.manaBar.setImageResource(resourceId);
+                Log.d("HomeFragment", "✓ Mana bar successfully updated to: " + drawableName);
+            } else {
+                Log.e("HomeFragment", "✗ Mana resource not found: " + drawableName + " - using fallback mp_0");
+                binding.manaBar.setImageResource(R.drawable.mp_0);
+            }
+        } catch (Exception e) {
+            Log.e("HomeFragment", "✗ Error updating mana bar", e);
+            binding.manaBar.setImageResource(R.drawable.mp_0);
+        }
+    }
+
+    private void updateHpBar(int hpLevel) {
+        // Asegurar que el nivel esté en el rango válido
+        int level = Math.max(0, Math.min(5, hpLevel));
+        String drawableName = "hp_" + level;
+        
+        Log.d("HomeFragment", "Updating HP bar to level: " + level + " (drawable: " + drawableName + ")");
+        
+        try {
+            int resourceId = getResources().getIdentifier(drawableName, "drawable", requireContext().getPackageName());
+            if (resourceId != 0) {
+                binding.healthBar.setImageResource(resourceId);
+                Log.d("HomeFragment", "✓ HP bar successfully updated to: " + drawableName);
+            } else {
+                Log.e("HomeFragment", "✗ HP resource not found: " + drawableName + " - using fallback hp_5");
+                binding.healthBar.setImageResource(R.drawable.hp_5);
+            }
+        } catch (Exception e) {
+            Log.e("HomeFragment", "✗ Error updating HP bar", e);
+            binding.healthBar.setImageResource(R.drawable.hp_5);
+        }
+    }
+
+    private void updateExpBar(int expLevel) {
+        // Asegurar que el nivel esté en el rango válido
+        int level = Math.max(0, Math.min(5, expLevel));
+        String drawableName = "exp_" + level;
+        
+        Log.d("HomeFragment", "Updating EXP bar to level: " + level + " (drawable: " + drawableName + ")");
+        
+        try {
+            int resourceId = getResources().getIdentifier(drawableName, "drawable", requireContext().getPackageName());
+            if (resourceId != 0) {
+                binding.experienceBar.setImageResource(resourceId);
+                Log.d("HomeFragment", "✓ EXP bar successfully updated to: " + drawableName);
+            } else {
+                Log.e("HomeFragment", "✗ EXP resource not found: " + drawableName + " - using fallback exp_0");
+                binding.experienceBar.setImageResource(R.drawable.exp_0);
+            }
+        } catch (Exception e) {
+            Log.e("HomeFragment", "✗ Error updating EXP bar", e);
+            binding.experienceBar.setImageResource(R.drawable.exp_0);
+        }
     }
 
     @Override
     public void onMissionClick(Mission mission) {
-        // Mostrar AlertDialog con opciones "Completar" y "Editar"
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle(mission.getTitle())
                 .setMessage("¿Qué deseas hacer con esta misión?")
                 .setPositiveButton("Completar", (dialog, which) -> {
                     if (!mission.isCompleted()) {
+                        int manaReward = mission.getManaReward();
+                        Log.d("HomeFragment", "Completing mission: " + mission.getTitle() + " for +" + manaReward + " MP");
                         homeViewModel.completeMission(mission.getId());
-                        Toast.makeText(getContext(), "¡Misión completada! +" + mission.getExpReward() + " EXP", 
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), 
+                            "¡Misión completada! +" + manaReward + " MP, +1 EXP", 
+                            Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getContext(), "Esta misión ya está completada", 
                                 Toast.LENGTH_SHORT).show();

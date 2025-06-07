@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@drawable/fondo3"
     android:orientation="vertical"
     tools:context=".ui.home.HomeFragment">
 
@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_marginTop="-40dp"
+        android:layout_marginBottom="-50dp"
         android:background="@drawable/fondo2"
         android:paddingTop="56dp"
         android:paddingBottom="16dp">
@@ -39,8 +40,8 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
-                android:src="@drawable/mp_5"
-                android:scaleType="fitXY" />
+                android:scaleType="fitXY"
+                android:src="@drawable/mp_0" />
 
             <!-- Barra de Experiencia -->
             <ImageView

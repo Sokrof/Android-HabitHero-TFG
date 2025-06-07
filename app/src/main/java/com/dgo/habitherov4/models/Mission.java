@@ -6,31 +6,28 @@ public class Mission {
     private String description;
     private String category;
     private boolean isCompleted;
-    private int progress;
-    private int maxProgress;
-    private int expReward;
+    private int manaReward;  
     private String iconType;
     private String difficulty;
     private long deadlineTimestamp;
     private boolean isExpired;
     private String timeUnit;
     private int timeAmount;
-    private boolean isDailyMission; // Nuevo campo para identificar misiones diarias
+    private boolean isDailyMission; 
     
     public Mission() {
         // Constructor vacío requerido para Firebase
     }
     
+    // ACTUALIZAR CONSTRUCTOR - eliminar progress y maxProgress
     public Mission(String id, String title, String description, String category, 
-                   boolean isCompleted, int progress, int maxProgress, int expReward, String iconType, String difficulty) {
+                   boolean isCompleted, int manaReward, String iconType, String difficulty) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.category = category;
         this.isCompleted = isCompleted;
-        this.progress = progress;
-        this.maxProgress = maxProgress;
-        this.expReward = expReward;
+        this.manaReward = manaReward;
         this.iconType = iconType;
         this.difficulty = difficulty;
     }
@@ -55,15 +52,13 @@ public class Mission {
     
     public boolean isCompleted() { return isCompleted; }
     public void setCompleted(boolean completed) { isCompleted = completed; }
+
+    public String getProgressText() {
+        return isCompleted ? "Completado" : "Pendiente";
+    }
     
-    public int getProgress() { return progress; }
-    public void setProgress(int progress) { this.progress = progress; }
-    
-    public int getMaxProgress() { return maxProgress; }
-    public void setMaxProgress(int maxProgress) { this.maxProgress = maxProgress; }
-    
-    public int getExpReward() { return expReward; }
-    public void setExpReward(int expReward) { this.expReward = expReward; }
+    public int getManaReward() { return manaReward; }
+    public void setManaReward(int manaReward) { this.manaReward = manaReward; }
     
     public String getIconType() { return iconType; }
     public void setIconType(String iconType) { this.iconType = iconType; }
@@ -71,28 +66,21 @@ public class Mission {
     public String getDifficulty() { return difficulty; }
     public void setDifficulty(String difficulty) { 
         this.difficulty = difficulty;
-        // Asignar automáticamente la experiencia basada en la dificultad
+        // Asignar automáticamente el maná basado en la dificultad
         switch (difficulty) {
             case "Fácil":
-                this.expReward = 50;
+                this.manaReward = 1;  // Fácil = 1 maná
                 break;
             case "Medio":
-                this.expReward = 160;
+                this.manaReward = 2;  // Medio = 2 maná
                 break;
             case "Difícil":
-                this.expReward = 380;
+                this.manaReward = 3;  // Difícil = 3 maná
                 break;
             default:
-                this.expReward = 50;
+                this.manaReward = 1;
                 break;
         }
-    }
-    
-    public String getProgressText() {
-        if (category.equals("Diaria") && maxProgress == 1) {
-            return isCompleted ? "Completado" : "Pendiente";
-        }
-        return progress + "/" + maxProgress;
     }
     
     // Getters y setters para los nuevos campos
