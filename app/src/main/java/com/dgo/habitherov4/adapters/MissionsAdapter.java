@@ -66,7 +66,6 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
         private ImageView iconImageView;
         private TextView titleTextView;
         private TextView descriptionTextView;
-        private TextView categoryTextView;
         private TextView expTextView;
         private LinearLayout cardContainer;
         private Handler handler;
@@ -77,7 +76,6 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             iconImageView = itemView.findViewById(R.id.mission_icon);
             titleTextView = itemView.findViewById(R.id.mission_title);
             descriptionTextView = itemView.findViewById(R.id.mission_description);
-            categoryTextView = itemView.findViewById(R.id.mission_category);
             expTextView = itemView.findViewById(R.id.mission_exp);
             cardContainer = itemView.findViewById(R.id.mission_card_container);
             handler = new Handler(Looper.getMainLooper());
@@ -92,9 +90,7 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
         
         public void bind(Mission mission) {
             titleTextView.setText(mission.getTitle());
-            descriptionTextView.setText(mission.getDescription());
-            categoryTextView.setText(mission.getCategory());
-            
+            descriptionTextView.setText(mission.getDescription());            
             // Detener contador anterior si existe
             if (countdownRunnable != null) {
                 handler.removeCallbacks(countdownRunnable);

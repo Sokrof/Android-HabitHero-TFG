@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,13 +8,15 @@
     android:orientation="vertical"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- Header extendido con fondo de paisaje y barras superpuestas -->
+    <!-- Header extendido con barras superpuestas -->
+
+    <!-- Lista de misiones con scroll infinito -->
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="327dp"
         android:layout_marginTop="-40dp"
         android:layout_marginBottom="-50dp"
-        android:background="@drawable/fondo2"
         android:paddingTop="56dp"
         android:paddingBottom="16dp">
 
@@ -23,52 +25,75 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <!-- Barra de Vida -->
-            <ImageView
-                android:id="@+id/health_bar"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:scaleType="fitXY"
-                android:src="@drawable/hp_5" />
+            <!-- Contador de Nivel -->
+            <TextView
+                android:id="@+id/player_level_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="Nivel: 1"
+                android:textColor="#FFD700"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:shadowColor="@android:color/black"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="1" />
 
-            <!-- Barra de Maná -->
-            <ImageView
-                android:id="@+id/mana_bar"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:scaleType="fitXY"
-                android:src="@drawable/mp_0" />
+            <!-- Barras de estadísticas -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-            <!-- Barra de Experiencia -->
-            <ImageView
-                android:id="@+id/experience_bar"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:src="@drawable/exp_0"
-                android:scaleType="fitXY" />
+                <!-- Barra de Vida -->
+                <ImageView
+                    android:id="@+id/health_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/hp_5" />
+
+                <!-- Barra de Maná -->
+                <ImageView
+                    android:id="@+id/mana_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/mp_0" />
+
+                <!-- Barra de Experiencia -->
+                <ImageView
+                    android:id="@+id/experience_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/exp_0" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
         <!-- Personaje animado en el lado izquierdo -->
-
-        <!-- Enemigo animado en el lado derecho -->
-
         <ImageView
             android:id="@+id/character_gif"
-            android:layout_width="119dp"
-            android:layout_height="138dp"
+            android:layout_width="162dp"
+            android:layout_height="182dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="59dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="0dp"
             android:scaleType="fitXY"
             android:src="@drawable/personaje" />
 
+        <!-- Enemigo animado en el lado derecho -->
         <ImageView
             android:id="@+id/enemy_gif"
             android:layout_width="118dp"
@@ -78,21 +103,58 @@
             android:layout_marginRight="75dp"
             android:layout_marginBottom="44dp"
             android:scaleType="fitXY"
-            android:src="@drawable/enemigo" />
+            android:src="@drawable/enemigo"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Icono de calavera y contador de vida del enemigo -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="125dp"
+            android:layout_marginBottom="115dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Contador de vida -->
+            <TextView
+                android:id="@+id/enemy_health_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3/3"
+                android:textColor="#FF0000"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:shadowColor="@android:color/black"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="1"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Icono de calavera -->
+            <ImageView
+                android:id="@+id/skull_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/skull"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 
-    <!-- Lista de misiones con scroll infinito -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/missions_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="80dp"
         android:clipToPadding="false"
+        android:paddingStart="8dp"
+        android:paddingTop="56dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="80dp"
         tools:listitem="@layout/item_mission" />
 
 </LinearLayout>

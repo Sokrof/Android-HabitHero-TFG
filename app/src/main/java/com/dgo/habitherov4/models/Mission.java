@@ -72,10 +72,10 @@ public class Mission {
                 this.manaReward = 1;  // Fácil = 1 maná
                 break;
             case "Medio":
-                this.manaReward = 2;  // Medio = 2 maná
+                this.manaReward = 3;  // Medio = 3 maná
                 break;
             case "Difícil":
-                this.manaReward = 3;  // Difícil = 3 maná
+                this.manaReward = 5;  // Difícil = 5 maná
                 break;
             default:
                 this.manaReward = 1;

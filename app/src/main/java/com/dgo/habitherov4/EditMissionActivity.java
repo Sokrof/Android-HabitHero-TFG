@@ -163,14 +163,12 @@ public class EditMissionActivity extends AppCompatActivity {
     
     private int getManaForDifficulty(String difficulty) {
         switch (difficulty.toLowerCase()) {
-            case "fácil":
             case "facil":
                 return 1;  // Fácil = 1 maná
             case "medio":
-                return 2;  // Medio = 2 maná
-            case "difícil":
+                return 3;  // Medio = 3 maná
             case "dificil":
-                return 3;  // Difícil = 3 maná
+                return 5;  // Difícil = 5 maná
             default:
                 return 1;
         }

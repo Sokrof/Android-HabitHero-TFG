@@ -162,8 +162,8 @@ public class HomeViewModel extends ViewModel {
                             .document(missionId)
                             .update("completed", true)
                             .addOnSuccessListener(aVoid -> {
-                                // Actualizar estadísticas del usuario
-                                updateUserStats(userId, mission.getManaReward(), 1); // 1 EXP por misión
+                                // La misión ya no da maná, pero lo dejamos a 0 en vez de quitarlo por si acaso.
+                                updateUserStats(userId, mission.getManaReward(), 0); 
                                 Log.d("HomeViewModel", "Mission completed successfully");
                             })
                             .addOnFailureListener(e -> {
@@ -254,5 +254,57 @@ public class HomeViewModel extends ViewModel {
             .addOnFailureListener(e -> {
                 Log.e("HomeViewModel", "Error al actualizar usuario", e);
             });
+    }
+
+    public void consumeMana(int manaToConsume) {
+        String userId = getCurrentUserId();
+        if (userId == null) return;
+
+        User user = currentUser.getValue();
+        if (user != null && user.getCurrentMana() >= manaToConsume) {
+            user.setCurrentMana(user.getCurrentMana() - manaToConsume);
+            
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("currentMana", user.getCurrentMana());
+            
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("HomeViewModel", "✓ Mana consumed successfully");
+                    currentUser.setValue(user);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("HomeViewModel", "✗ Error consuming mana", e);
+                });
+        }
+    }
+
+    public void addExperience(int expToAdd) {
+        String userId = getCurrentUserId();
+        if (userId == null) return;
+
+        User user = currentUser.getValue();
+        if (user != null) {
+            user.addExp(expToAdd);
+            
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("currentExp", user.getCurrentExp());
+            updates.put("level", user.getLevel());
+            updates.put("maxExp", user.getMaxExp());
+            
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("HomeViewModel", "✓ Experience added successfully");
+                    currentUser.setValue(user);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("HomeViewModel", "✗ Error adding experience", e);
+                });
+        }
     }
 }

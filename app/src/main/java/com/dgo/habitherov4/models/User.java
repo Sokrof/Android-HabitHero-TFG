@@ -101,29 +101,19 @@ public class User {
     
     // Método para añadir experiencia
     public void addExp(int expToAdd) {
-        this.currentExp = Math.min(this.currentExp + expToAdd, this.maxExp);
+        this.currentExp += expToAdd;
         
-        // Verificar si debe subir de nivel
-        if (this.currentExp >= this.maxExp) {
+        // Verificar si debe subir de nivel (cuando EXP llega a 5)
+        while (this.currentExp >= 5) {
+            this.currentExp -= 5; // Reiniciar EXP restando 5
             levelUp();
         }
-    }
-    
-    // Método para perder vida
-    public void loseHp(int hpToLose) {
-        this.currentHp = Math.max(this.currentHp - hpToLose, 0);
-    }
-    
-    // Método para recuperar vida
-    public void restoreHp(int hpToRestore) {
-        this.currentHp = Math.min(this.currentHp + hpToRestore, this.maxHp);
     }
     
     // Método para subir de nivel
     private void levelUp() {
         this.level++;
-        this.currentExp = 0; // Resetear experiencia
-        this.maxExp += 2; // Aumentar EXP máxima requerida
+        // Ya no modificamos maxExp, se mantiene en 5
         this.maxHp = Math.min(this.maxHp + 1, 5); // Aumentar HP máxima (máximo 5)
         this.maxMana = Math.min(this.maxMana + 1, 5); // Aumentar MP máxima (máximo 5)
         this.currentHp = this.maxHp; // Restaurar HP completa al subir nivel

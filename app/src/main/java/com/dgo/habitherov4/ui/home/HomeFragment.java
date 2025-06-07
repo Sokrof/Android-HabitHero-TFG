@@ -27,6 +27,8 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     private FragmentHomeBinding binding;
     private HomeViewModel homeViewModel;
     private MissionsAdapter missionsAdapter;
+    private int enemyCurrentHealth = 3;
+    private int enemyMaxHealth = 3;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -38,8 +40,93 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
         setupRecyclerView();
         observeViewModel();
         setupCharacterAnimation();
+        setupEnemyAttack();
+        updateEnemyHealthDisplay();
 
         return root;
+    }
+
+    private void setupEnemyAttack() {
+        binding.enemyGif.setOnClickListener(v -> {
+            showAttackConfirmationDialog();
+        });
+    }
+
+    private void showAttackConfirmationDialog() {
+        User currentUser = homeViewModel.getCurrentUser().getValue();
+        if (currentUser == null) {
+            Toast.makeText(getContext(), "Error: No se pudo cargar la información del usuario", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (currentUser.getCurrentMana() <= 0) {
+            Toast.makeText(getContext(), "No tienes suficiente MP para atacar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (enemyCurrentHealth <= 0) {
+            Toast.makeText(getContext(), "El enemigo ya está derrotado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Atacar Enemigo")
+                .setMessage("¿Deseas atacar al enemigo?\n\nCosto: 1 MP\nDaño: 1 HP")
+                .setPositiveButton("Atacar", (dialog, which) -> {
+                    attackEnemy();
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void attackEnemy() {
+        User currentUser = homeViewModel.getCurrentUser().getValue();
+        if (currentUser == null || currentUser.getCurrentMana() <= 0) {
+            return;
+        }
+
+        // Consumir 1 MP del jugador
+        homeViewModel.consumeMana(1);
+        
+        // Reducir 1 HP del enemigo
+        enemyCurrentHealth = Math.max(0, enemyCurrentHealth - 1);
+        updateEnemyHealthDisplay();
+        
+        // Mostrar mensaje de ataque
+        Toast.makeText(getContext(), 
+            "¡Atacaste al enemigo! -1 MP, Enemigo: " + enemyCurrentHealth + "/" + enemyMaxHealth + " HP", 
+            Toast.LENGTH_SHORT).show();
+        
+        // Verificar si el enemigo fue derrotado
+        if (enemyCurrentHealth <= 0) {
+            Toast.makeText(getContext(), "¡Enemigo derrotado! +2 EXP", Toast.LENGTH_LONG).show();
+            // Dar recompensa por derrotar al enemigo
+            homeViewModel.addExperience(2);
+            // Resetear enemigo inmediatamente
+            resetEnemy();
+        }
+    }
+
+    private void resetEnemy() {
+        enemyCurrentHealth = enemyMaxHealth;
+        updateEnemyHealthDisplay();
+        Toast.makeText(getContext(), "Un nuevo enemigo ha aparecido", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateEnemyHealthDisplay() {
+        String healthText = enemyCurrentHealth + "/" + enemyMaxHealth;
+        binding.enemyHealthCounter.setText(healthText);
+        
+        // Cambiar color del texto según la vida
+        if (enemyCurrentHealth <= 0) {
+            binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+        } else if (enemyCurrentHealth == 1) {
+            binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+        } else {
+            binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.white));
+        }
     }
 
     private void setupCharacterAnimation() {
@@ -106,8 +193,15 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
         updateHpBar(hpLevel);
         updateManaBar(manaLevel);
         updateExpBar(expLevel);
+        updatePlayerLevel(user.getLevel()); // Agregar esta línea
         
         Log.d("HomeFragment", "=== STAT BARS UPDATE COMPLETE ===");
+    }
+
+    // Agregar este nuevo método
+    private void updatePlayerLevel(int level) {
+        binding.playerLevelCounter.setText("Nivel: " + level);
+        Log.d("HomeFragment", "✓ Player level updated to: " + level);
     }
 
     private void updateManaBar(int manaLevel) {
