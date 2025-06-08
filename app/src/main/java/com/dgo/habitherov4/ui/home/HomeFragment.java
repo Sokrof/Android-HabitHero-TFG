@@ -1,6 +1,8 @@
 package com.dgo.habitherov4.ui.home;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,12 +17,22 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.dgo.habitherov4.EditMissionActivity;
+import com.dgo.habitherov4.InventoryActivity;
 import com.dgo.habitherov4.R;
 import com.dgo.habitherov4.adapters.MissionsAdapter;
 import com.dgo.habitherov4.databinding.FragmentHomeBinding;
+import com.dgo.habitherov4.models.InventoryReward;
 import com.dgo.habitherov4.models.Mission;
+import com.dgo.habitherov4.models.Reward;
 import com.dgo.habitherov4.models.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import android.os.Handler;
+import android.os.Looper;
 
 public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionClickListener {
 
@@ -29,6 +41,10 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     private MissionsAdapter missionsAdapter;
     private int enemyCurrentHealth = 3;
     private int enemyMaxHealth = 3;
+    private int chestCount = 0;
+    private SharedPreferences sharedPreferences;
+    private FirebaseFirestore db;
+    private String currentUserId;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -37,13 +53,166 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        // Inicializar Firebase y SharedPreferences
+        db = FirebaseFirestore.getInstance();
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        sharedPreferences = requireContext().getSharedPreferences("HabitHero_" + currentUserId, Context.MODE_PRIVATE);
+
         setupRecyclerView();
         observeViewModel();
         setupCharacterAnimation();
         setupEnemyAttack();
+        setupChestClick();
         updateEnemyHealthDisplay();
+        loadChestCount();
+        setupBagClick();
+        loadBagCount();
 
         return root;
+    }
+
+    private void setupChestClick() {
+        binding.chestContainer.setOnClickListener(v -> {
+            if (chestCount <= 0) {
+                Toast.makeText(getContext(), "No tienes cofres disponibles", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showChestConfirmationDialog();
+        });
+    }
+
+    private void showChestConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Abrir Cofre")
+                .setMessage("¿Deseas abrir un cofre para recibir una recompensa aleatoria?\n\nCofres disponibles: " + chestCount)
+                .setPositiveButton("Abrir", (dialog, which) -> {
+                    openChest();
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void openChest() {
+        // Obtener recompensas aleatorias de Firestore
+        db.collection("users").document(currentUserId)
+                .collection("rewards")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Reward> availableRewards = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Reward reward = document.toObject(Reward.class);
+                        reward.setId(document.getId());
+                        availableRewards.add(reward);
+                    }
+
+                    if (availableRewards.isEmpty()) {
+                        Toast.makeText(getContext(), "No hay recompensas disponibles. Crea algunas primero.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    // Seleccionar recompensa aleatoria
+                    Random random = new Random();
+                    Reward randomReward = availableRewards.get(random.nextInt(availableRewards.size()));
+
+                    // Reducir contador de cofres
+                    chestCount--;
+                    saveChestCount();
+                    updateChestDisplay();
+
+                    // Agregar recompensa al inventario
+                    addRewardToInventory(randomReward);
+
+                    // Mostrar recompensa obtenida
+                    showRewardDialog(randomReward);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error al obtener recompensas: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void addRewardToInventory(Reward reward) {
+        InventoryReward inventoryReward = new InventoryReward(reward.getTitle(), reward.getDescription());
+        
+        Log.d("HomeFragment", "Guardando recompensa en inventario: " + reward.getTitle());
+        Log.d("HomeFragment", "Usuario ID: " + currentUserId);
+        Log.d("HomeFragment", "Recompensa used: " + inventoryReward.isUsed());
+        
+        db.collection("users").document(currentUserId)
+                .collection("inventory")
+                .add(inventoryReward)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("HomeFragment", "Recompensa guardada exitosamente con ID: " + documentReference.getId());
+                    loadBagCount(); // Actualizar contador de la mochila
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("HomeFragment", "Error al guardar en inventario: " + e.getMessage());
+                    Toast.makeText(getContext(), "Error al guardar en inventario: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void setupBagClick() {
+        binding.bagContainer.setOnClickListener(v -> {
+            showBagConfirmationDialog();
+        });
+    }
+
+    private void showBagConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Abrir Inventario")
+                .setMessage("¿Deseas abrir tu inventario para ver y usar tus recompensas?")
+                .setPositiveButton("Abrir", (dialog, which) -> {
+                    Intent intent = new Intent(getContext(), InventoryActivity.class);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void loadBagCount() {
+        db.collection("users").document(currentUserId)
+                .collection("inventory")
+                .whereEqualTo("used", false)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int itemCount = queryDocumentSnapshots.size();
+                    updateBagDisplay(itemCount);
+                })
+                .addOnFailureListener(e -> {
+                    updateBagDisplay(0);
+                });
+    }
+
+    private void updateBagDisplay(int itemCount) {
+        binding.bagCounter.setText("Items: " + itemCount);
+    }
+
+    private void showRewardDialog(Reward reward) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("¡Recompensa Obtenida!")
+                .setMessage("Has recibido:\n\n" + reward.getTitle() + "\n\n" + reward.getDescription())
+                .setPositiveButton("¡Genial!", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void loadChestCount() {
+        chestCount = sharedPreferences.getInt("chest_count", 0);
+        updateChestDisplay();
+    }
+
+    private void saveChestCount() {
+        sharedPreferences.edit().putInt("chest_count", chestCount).apply();
+    }
+
+    private void updateChestDisplay() {
+        binding.chestCounter.setText("Cofres: " + chestCount);
+        // El contador siempre será visible ahora
     }
 
     private void setupEnemyAttack() {
@@ -53,79 +222,128 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     }
 
     private void showAttackConfirmationDialog() {
+        if (!isAdded() || getContext() == null) {
+            return;
+        }
+        
         User currentUser = homeViewModel.getCurrentUser().getValue();
         if (currentUser == null) {
             Toast.makeText(getContext(), "Error: No se pudo cargar la información del usuario", Toast.LENGTH_SHORT).show();
             return;
         }
-
+    
         if (currentUser.getCurrentMana() <= 0) {
             Toast.makeText(getContext(), "No tienes suficiente MP para atacar", Toast.LENGTH_SHORT).show();
             return;
         }
-
+    
         if (enemyCurrentHealth <= 0) {
             Toast.makeText(getContext(), "El enemigo ya está derrotado", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Atacar Enemigo")
-                .setMessage("¿Deseas atacar al enemigo?\n\nCosto: 1 MP\nDaño: 1 HP")
-                .setPositiveButton("Atacar", (dialog, which) -> {
-                    attackEnemy();
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
+    
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Atacar Enemigo")
+                    .setMessage("¿Deseas atacar al enemigo?\n\nCosto: 1 MP\nDaño: 1 HP")
+                    .setPositiveButton("Atacar", (dialog, which) -> {
+                        if (isAdded()) {
+                            attackEnemy();
+                        }
+                    })
+                    .setNegativeButton("Cancelar", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
+        } catch (Exception e) {
+            Log.e("HomeFragment", "Error showing attack dialog", e);
+        }
     }
 
     private void attackEnemy() {
+        if (!isAdded() || getContext() == null) {
+            return;
+        }
+        
         User currentUser = homeViewModel.getCurrentUser().getValue();
         if (currentUser == null || currentUser.getCurrentMana() <= 0) {
             return;
         }
-
-        // Consumir 1 MP del jugador
-        homeViewModel.consumeMana(1);
-        
-        // Reducir 1 HP del enemigo
-        enemyCurrentHealth = Math.max(0, enemyCurrentHealth - 1);
-        updateEnemyHealthDisplay();
-        
-        // Mostrar mensaje de ataque
-        Toast.makeText(getContext(), 
-            "¡Atacaste al enemigo! -1 MP, Enemigo: " + enemyCurrentHealth + "/" + enemyMaxHealth + " HP", 
-            Toast.LENGTH_SHORT).show();
-        
-        // Verificar si el enemigo fue derrotado
-        if (enemyCurrentHealth <= 0) {
-            Toast.makeText(getContext(), "¡Enemigo derrotado! +2 EXP", Toast.LENGTH_LONG).show();
-            // Dar recompensa por derrotar al enemigo
-            homeViewModel.addExperience(2);
-            // Resetear enemigo inmediatamente
-            resetEnemy();
+    
+        try {
+            // Consumir 1 MP del jugador
+            homeViewModel.consumeMana(1);
+            
+            // Reducir 1 HP del enemigo
+            enemyCurrentHealth = Math.max(0, enemyCurrentHealth - 1);
+            updateEnemyHealthDisplay();
+            
+            // Mostrar mensaje de ataque
+            Toast.makeText(getContext(), 
+                "¡Atacaste al enemigo! -1 MP, Enemigo: " + enemyCurrentHealth + "/" + enemyMaxHealth + " HP", 
+                Toast.LENGTH_SHORT).show();
+            
+            // Verificar si el enemigo fue derrotado
+            if (enemyCurrentHealth <= 0) {
+                // Agregar cofre por derrotar enemigo
+                chestCount++;
+                saveChestCount();
+                updateChestDisplay();
+                
+                // Usar un Handler para mostrar el segundo Toast con delay
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (isAdded() && getContext() != null) {
+                        Toast.makeText(getContext(), "¡Enemigo derrotado! +2 EXP +1 Cofre", Toast.LENGTH_LONG).show();
+                    }
+                }, 500);
+                
+                // Dar recompensa por derrotar al enemigo
+                homeViewModel.addExperience(2);
+                
+                // Resetear enemigo con delay
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (isAdded()) {
+                        resetEnemy();
+                    }
+                }, 1000);
+            }
+        } catch (Exception e) {
+            Log.e("HomeFragment", "Error during attack", e);
+            if (isAdded() && getContext() != null) {
+                Toast.makeText(getContext(), "Error durante el ataque", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     private void resetEnemy() {
+        if (!isAdded() || getContext() == null) {
+            return;
+        }
+        
         enemyCurrentHealth = enemyMaxHealth;
         updateEnemyHealthDisplay();
         Toast.makeText(getContext(), "Un nuevo enemigo ha aparecido", Toast.LENGTH_SHORT).show();
     }
 
     private void updateEnemyHealthDisplay() {
-        String healthText = enemyCurrentHealth + "/" + enemyMaxHealth;
-        binding.enemyHealthCounter.setText(healthText);
+        if (!isAdded() || binding == null) {
+            return;
+        }
         
-        // Cambiar color del texto según la vida
-        if (enemyCurrentHealth <= 0) {
-            binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        } else if (enemyCurrentHealth == 1) {
-            binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
-        } else {
-            binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.white));
+        try {
+            String healthText = enemyCurrentHealth + "/" + enemyMaxHealth;
+            binding.enemyHealthCounter.setText(healthText);
+            
+            // Cambiar color del texto según la vida
+            if (enemyCurrentHealth <= 0) {
+                binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            } else if (enemyCurrentHealth == 1) {
+                binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+            } else {
+                binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.white));
+            }
+        } catch (Exception e) {
+            Log.e("HomeFragment", "Error updating enemy health display", e);
         }
     }
 
@@ -198,7 +416,6 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
         Log.d("HomeFragment", "=== STAT BARS UPDATE COMPLETE ===");
     }
 
-    // Agregar este nuevo método
     private void updatePlayerLevel(int level) {
         binding.playerLevelCounter.setText("Nivel: " + level);
         Log.d("HomeFragment", "✓ Player level updated to: " + level);

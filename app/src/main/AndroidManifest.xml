@@ -49,6 +49,16 @@
             android:name=".services.NotificationService"
             android:exported="false" />
             
+        <!-- Agregar esta línea dentro del tag <application> -->
+        <activity
+            android:name=".RewardsActivity"
+            android:exported="false"
+            android:label="Recompensas"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".InventoryActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

@@ -81,19 +81,110 @@
 
         </LinearLayout>
 
+        <!-- Cofre y mochila apilados verticalmente a la izquierda del personaje -->
+        <LinearLayout
+            android:id="@+id/chest_bag_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Mochila (inventario) encima -->
+            <LinearLayout
+                android:id="@+id/bag_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginBottom="8dp">
+
+                <!-- Imagen de la mochila -->
+                <ImageView
+                    android:id="@+id/bag_image"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/bag"
+                    android:scaleType="fitCenter" />
+
+                <!-- Contador de recompensas en la mochila -->
+                <TextView
+                    android:id="@+id/bag_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="Items: 0"
+                    android:textColor="#FFD700"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:shadowColor="@android:color/black"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="1"
+                    android:gravity="center"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+            <!-- Cofre debajo -->
+            <LinearLayout
+                android:id="@+id/chest_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true">
+
+                <!-- Imagen del cofre (tamaño reducido) -->
+                <ImageView
+                    android:id="@+id/chest_image"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/chest"
+                    android:scaleType="fitCenter" />
+
+                <!-- Contador de cofres debajo del cofre -->
+                <TextView
+                    android:id="@+id/chest_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="Cofres: 0"
+                    android:textColor="#FFD700"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:shadowColor="@android:color/black"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="1"
+                    android:gravity="center"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
         <!-- Personaje animado en el lado izquierdo -->
+
+        <!-- Enemigo animado en el lado derecho -->
+
         <ImageView
             android:id="@+id/character_gif"
             android:layout_width="162dp"
             android:layout_height="182dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginLeft="59dp"
-            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginBottom="4dp"
             android:scaleType="fitXY"
             android:src="@drawable/personaje" />
 
-        <!-- Enemigo animado en el lado derecho -->
         <ImageView
             android:id="@+id/enemy_gif"
             android:layout_width="118dp"
@@ -123,15 +214,15 @@
                 android:id="@+id/enemy_health_counter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3/3"
-                android:textColor="#FF0000"
-                android:textSize="14sp"
-                android:textStyle="bold"
+                android:layout_marginBottom="4dp"
                 android:shadowColor="@android:color/black"
                 android:shadowDx="2"
                 android:shadowDy="2"
                 android:shadowRadius="1"
-                android:layout_marginBottom="4dp" />
+                android:text="3/3"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
             <!-- Icono de calavera -->
             <ImageView

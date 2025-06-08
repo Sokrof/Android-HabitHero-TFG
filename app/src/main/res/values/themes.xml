@@ -20,5 +20,9 @@
         <item name="itemIconTint">@null</item>
         <item name="itemTextColor">@color/bottom_nav_text_color</item>
         <item name="android:background">@color/white</item>
+        <item name="itemIconSize">38dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:minHeight">72dp</item>
     </style>
 </resources>
