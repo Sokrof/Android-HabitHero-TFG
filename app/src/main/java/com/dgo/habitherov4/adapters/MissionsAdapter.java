@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.dgo.habitherov4.R;
 import com.dgo.habitherov4.models.Mission;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +60,14 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
     }
     
     public void updateMissions(List<Mission> newMissions) {
-        this.missions = newMissions;
+        // Filtrar misiones completadas
+        List<Mission> filteredMissions = new ArrayList<>();
+        for (Mission mission : newMissions) {
+            if (!mission.isCompleted()) {
+                filteredMissions.add(mission);
+            }
+        }
+        this.missions = filteredMissions;
         notifyDataSetChanged();
     }
     

@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.dgo.habitherov4.EditMissionActivity;
 import com.dgo.habitherov4.R;
 import com.dgo.habitherov4.adapters.MissionsAdapter;
 import com.dgo.habitherov4.databinding.FragmentDashboardBinding;
@@ -361,7 +362,7 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         // Configurar spinner de tipo de misión
         ArrayAdapter<CharSequence> typeAdapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_item,
-                new String[]{"Principal", "Secundaria", "Diaria"});
+                new String[]{"Principal", "Diaria"});
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         missionTypeSpinner.setAdapter(typeAdapter);
         

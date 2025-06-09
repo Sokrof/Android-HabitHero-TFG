@@ -220,17 +220,7 @@ public class EditMissionActivity extends AppCompatActivity {
             if (isValid) titleEditText.requestFocus();
             isValid = false;
         }
-        
-        if (description.length() > 0 && description.length() < 10) {
-            descriptionEditText.setError("La descripción debe tener al menos 10 caracteres");
-            if (isValid) descriptionEditText.requestFocus();
-            isValid = false;
-        } else if (description.length() > 200) {
-            descriptionEditText.setError("La descripción no puede exceder 200 caracteres");
-            if (isValid) descriptionEditText.requestFocus();
-            isValid = false;
-        }
-        
+     
         if (category == null) {
             Toast.makeText(this, "Selecciona una categoría", Toast.LENGTH_SHORT).show();
             isValid = false;

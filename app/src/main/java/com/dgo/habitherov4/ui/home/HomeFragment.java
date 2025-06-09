@@ -340,7 +340,7 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
             } else if (enemyCurrentHealth == 1) {
                 binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
             } else {
-                binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.white));
+                binding.enemyHealthCounter.setTextColor(getResources().getColor(android.R.color.holo_orange_light));
             }
         } catch (Exception e) {
             Log.e("HomeFragment", "Error updating enemy health display", e);
@@ -370,18 +370,18 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     private void observeViewModel() {
         homeViewModel.getMissions().observe(getViewLifecycleOwner(), missions -> {
             if (missions != null) {
+                // Mostrar TODAS las misiones (sin filtrar)
                 missionsAdapter.updateMissions(missions);
-                Log.d("HomeFragment", "Missions updated: " + missions.size());
             }
         });
-        
+
         // OBSERVAR CAMBIOS EN EL USUARIO PARA ACTUALIZAR BARRAS
         homeViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
                 Log.d("HomeFragment", "=== USER DATA CHANGED ===");
                 Log.d("HomeFragment", "User stats received - HP: " + user.getCurrentHp() + "/" + user.getMaxHp() +
-                      ", MP: " + user.getCurrentMana() + "/" + user.getMaxMana() + 
-                      ", EXP: " + user.getCurrentExp() + "/" + user.getMaxExp());
+                        ", MP: " + user.getCurrentMana() + "/" + user.getMaxMana() +
+                        ", EXP: " + user.getCurrentExp() + "/" + user.getMaxExp());
                 updateAllStatBars(user);
             } else {
                 Log.w("HomeFragment", "User is null - setting default bars");
@@ -391,7 +391,7 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
                 updateExpBar(0);   // EXP a 0
             }
         });
-        
+
         homeViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
             if (isLoading != null) {
                 Log.d("HomeFragment", "Loading state: " + isLoading);

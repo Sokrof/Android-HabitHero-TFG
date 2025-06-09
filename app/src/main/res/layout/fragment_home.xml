@@ -35,14 +35,14 @@
                 android:layout_gravity="start"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="4dp"
-                android:text="Nivel: 1"
-                android:textColor="#FFD700"
-                android:textSize="16sp"
-                android:textStyle="bold"
                 android:shadowColor="@android:color/black"
                 android:shadowDx="2"
                 android:shadowDy="2"
-                android:shadowRadius="1" />
+                android:shadowRadius="1"
+                android:text="Nivel: 1"
+                android:textColor="#FFD700"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <!-- Barras de estadísticas -->
             <LinearLayout
@@ -118,15 +118,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="Items: 0"
-                    android:textColor="#FFD700"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
                     android:shadowColor="@android:color/black"
                     android:shadowDx="2"
                     android:shadowDy="2"
                     android:shadowRadius="1"
-                    android:gravity="center"
+                    android:text="Items: 0"
+                    android:textColor="#FFD700"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
                     android:visibility="visible" />
 
             </LinearLayout>
@@ -155,15 +156,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="Cofres: 0"
-                    android:textColor="#FFD700"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
+                    android:gravity="center"
                     android:shadowColor="@android:color/black"
                     android:shadowDx="2"
                     android:shadowDy="2"
                     android:shadowRadius="1"
-                    android:gravity="center"
+                    android:text="Cofres: 0"
+                    android:textColor="#FFD700"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
                     android:visibility="visible" />
 
             </LinearLayout>
@@ -215,13 +216,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
+                android:fontFamily="sans-serif-black"
                 android:shadowColor="@android:color/black"
                 android:shadowDx="2"
                 android:shadowDy="2"
                 android:shadowRadius="1"
                 android:text="3/3"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <!-- Icono de calavera -->
@@ -229,8 +231,8 @@
                 android:id="@+id/skull_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/skull"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/skull" />
 
         </LinearLayout>
 

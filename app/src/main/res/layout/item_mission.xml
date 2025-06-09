@@ -2,6 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="20dp"
+    android:layout_marginEnd="20dp"
     android:layout_marginBottom="0dp"
     android:paddingTop="30dp">
 
@@ -15,7 +17,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="16dp">
-        
+
         <!-- RPG Icon Section -->
         <LinearLayout
             android:layout_width="wrap_content"
@@ -28,10 +30,10 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:layout_marginEnd="16dp"
-                android:contentDescription="Mission Icon"
-                android:scaleType="fitCenter"
-                android:padding="8dp"
                 android:adjustViewBounds="true"
+                android:contentDescription="Mission Icon"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_default_mission" />
 
         </LinearLayout>
@@ -40,34 +42,34 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:layout_marginEnd="12dp"
-            android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/mission_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Título de la misión"
                 android:textColor="@android:color/black"
                 android:textSize="17sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/mission_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:gravity="top"
+                android:maxLines="1"
                 android:text="Descripción de la misión"
                 android:textColor="@android:color/black"
                 android:textSize="15sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:gravity="top" />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -85,14 +87,14 @@
                 android:background="@drawable/timer_background"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
-                android:text="100:00"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:textStyle="bold"
                 android:shadowColor="@android:color/black"
                 android:shadowDx="1"
                 android:shadowDy="1"
-                android:shadowRadius="2" />
+                android:shadowRadius="2"
+                android:text="100:00"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
