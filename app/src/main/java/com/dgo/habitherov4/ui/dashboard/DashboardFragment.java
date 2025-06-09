@@ -374,10 +374,13 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                     // Ocultar selector de fecha para misiones diarias
                     selectDeadlineBtn.setVisibility(View.GONE);
                     selectedDeadlineText.setText("Las misiones diarias se renuevan automáticamente cada 24 horas");
+                    customDeadline[0] = 0; // Reset custom deadline
                 } else {
                     // Mostrar selector de fecha para otros tipos
                     selectDeadlineBtn.setVisibility(View.VISIBLE);
-                    selectedDeadlineText.setText("Fecha límite: Se calculará automáticamente");
+                    if (customDeadline[0] == 0) {
+                        selectedDeadlineText.setText("Fecha límite: Se programará automáticamente para 24 horas");
+                    }
                 }
             }
             
@@ -405,7 +408,19 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                             calendar.set(Calendar.MINUTE, minute);
                             calendar.set(Calendar.SECOND, 0);
                             
-                            customDeadline[0] = calendar.getTimeInMillis();
+                            // Validar que la fecha sea al menos 1 hora en el futuro
+                            long selectedTime = calendar.getTimeInMillis();
+                            long currentTime = System.currentTimeMillis();
+                            long oneHourFromNow = currentTime + (60 * 60 * 1000);
+                            
+                            if (selectedTime < oneHourFromNow) {
+                                Toast.makeText(getContext(), 
+                                    "La fecha debe ser al menos 1 hora en el futuro", 
+                                    Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            
+                            customDeadline[0] = selectedTime;
                             
                             // Formatear y mostrar la fecha seleccionada
                             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
@@ -437,98 +452,201 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
     
         // Configurar botones del diálogo
         builder.setPositiveButton("Guardar", (dialog, which) -> {
-            // Validar campos
-            String title = titleInput.getText().toString().trim();
-            String description = descriptionInput.getText().toString().trim();
-            
-            // Obtener categoría seleccionada
-            String category = "";
-            int checkedChipId = categoryChipGroup.getCheckedChipId();
-            if (checkedChipId != View.NO_ID) {
-                Chip selectedChip = dialogView.findViewById(checkedChipId);
-                category = selectedChip.getText().toString();
+            // Validar campos ANTES de cerrar el diálogo
+            if (validateMissionFields(titleInput, descriptionInput, categoryChipGroup, 
+                                    difficultyChipGroup, missionTypeSpinner, customDeadline[0])) {
+                // Solo si la validación es exitosa, crear la misión y cerrar el diálogo
+                createMissionFromDialog(titleInput, descriptionInput, categoryChipGroup,
+                                      difficultyChipGroup, missionTypeSpinner, customDeadline[0]);
+                dialog.dismiss();
             }
-            
-            // Obtener dificultad seleccionada
-            String difficulty = "";
-            int checkedDifficultyId = difficultyChipGroup.getCheckedChipId();
-            if (checkedDifficultyId != View.NO_ID) {
-                Chip selectedDifficultyChip = dialogView.findViewById(checkedDifficultyId);
-                String difficultyText = selectedDifficultyChip.getText().toString();
-                if (difficultyText.contains("Fácil")) {
-                    difficulty = "Fácil";
-                } else if (difficultyText.contains("Medio")) {
-                    difficulty = "Medio";
-                } else if (difficultyText.contains("Difícil")) {
-                    difficulty = "Difícil";
-                }
-            }
-            
-            // Obtener tipo de misión
-            String missionType = missionTypeSpinner.getSelectedItem().toString();
-            boolean isDailyMission = "Diaria".equals(missionType);
-            
-            if (title.isEmpty() || description.isEmpty() || category.isEmpty() || 
-                difficulty.isEmpty()) {
-                Toast.makeText(getContext(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            
-            // Determinar el iconType basado en la categoría
-            String iconType = "default";
-            if (category.equals("Economía")) {
-                iconType = "finanzas";
-            } else if (category.equals("Salud")) {
-                iconType = "salud";
-            } else if (category.equals("Académico")) {
-                iconType = "academico";
-            }
-            
-            Mission newMission = new Mission(
-                    UUID.randomUUID().toString(),
-                    title,
-                    description,
-                    isDailyMission ? "Diaria" : category,
-                    false,
-                    // ELIMINAR: 0,  // progress
-                    // ELIMINAR: 1,  // maxProgress
-                    0,  // manaReward (se asignará automáticamente por setDifficulty)
-                    iconType,
-                    difficulty
-            );
-            
-            // Configurar según el tipo de misión
-            if (isDailyMission) {
-                // Para misiones diarias, configurar automáticamente para 24 horas
-                newMission.setTimeAmount(1);
-                newMission.setTimeUnit("días");
-                newMission.calculateDeadline();
-            } else {
-                // Usar deadline personalizado si se seleccionó, sino calcular automáticamente
-                if (customDeadline[0] > 0) {
-                    newMission.setDeadlineTimestamp(customDeadline[0]);
-                } else {
-                    newMission.setTimeAmount(1);
-                    newMission.setTimeUnit("días");
-                    newMission.calculateDeadline();
-                }
-            }
-            
-            // Asignar la dificultad
-            newMission.setDifficulty(difficulty);
-            
-            // Programar alarma/notificación en Firebase
-            scheduleFirebaseAlarm(newMission);
-
-            // Guardar la misión
-            dashboardViewModel.addMission(newMission);
-            Toast.makeText(getContext(), "Misión añadida correctamente", Toast.LENGTH_SHORT).show();
+            // Si la validación falla, el diálogo permanece abierto
         });
-
+    
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
-
+    
         AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(view -> {
+                // Validar campos ANTES de cerrar el diálogo
+                if (validateMissionFields(titleInput, descriptionInput, categoryChipGroup, 
+                                        difficultyChipGroup, missionTypeSpinner, customDeadline[0])) {
+                    // Solo si la validación es exitosa, crear la misión y cerrar el diálogo
+                    createMissionFromDialog(titleInput, descriptionInput, categoryChipGroup,
+                                          difficultyChipGroup, missionTypeSpinner, customDeadline[0]);
+                    dialog.dismiss();
+                }
+                // Si la validación falla, el diálogo permanece abierto
+            });
+        });
+    
         dialog.show();
+    }
+
+    private boolean validateMissionFields(TextInputEditText titleInput, 
+                                        TextInputEditText descriptionInput,
+                                        ChipGroup categoryChipGroup,
+                                        ChipGroup difficultyChipGroup,
+                                        Spinner missionTypeSpinner,
+                                        long customDeadline) {
+        
+        String title = titleInput.getText().toString().trim();
+        String description = descriptionInput.getText().toString().trim();
+        
+        // Limpiar errores previos
+        titleInput.setError(null);
+        descriptionInput.setError(null);
+        
+        boolean isValid = true;
+        
+        // Validar título
+        if (title.isEmpty()) {
+            titleInput.setError("El título es requerido");
+            if (isValid) titleInput.requestFocus();
+            isValid = false;
+        } else if (title.length() < 3) {
+            titleInput.setError("El título debe tener al menos 3 caracteres");
+            if (isValid) titleInput.requestFocus();
+            isValid = false;
+        } else if (title.length() > 50) {
+            titleInput.setError("El título no puede exceder 50 caracteres");
+            if (isValid) titleInput.requestFocus();
+            isValid = false;
+        }
+        
+        // Validar descripción
+        if (description.isEmpty()) {
+            descriptionInput.setError("La descripción es requerida");
+            if (isValid) descriptionInput.requestFocus();
+            isValid = false;
+        } else if (description.length() < 10) {
+            descriptionInput.setError("La descripción debe tener al menos 10 caracteres");
+            if (isValid) descriptionInput.requestFocus();
+            isValid = false;
+        } else if (description.length() > 200) {
+            descriptionInput.setError("La descripción no puede exceder 200 caracteres");
+            if (isValid) descriptionInput.requestFocus();
+            isValid = false;
+        }
+        
+        // Validar categoría
+        if (categoryChipGroup.getCheckedChipId() == View.NO_ID) {
+            Toast.makeText(getContext(), "Selecciona una categoría", Toast.LENGTH_SHORT).show();
+            isValid = false;
+        }
+        
+        // Validar dificultad
+        if (difficultyChipGroup.getCheckedChipId() == View.NO_ID) {
+            Toast.makeText(getContext(), "Selecciona una dificultad", Toast.LENGTH_SHORT).show();
+            isValid = false;
+        }
+        
+        // Validar fecha para misiones no diarias
+        String missionType = missionTypeSpinner.getSelectedItem().toString();
+        if (!"Diaria".equals(missionType)) {
+            if (customDeadline > 0) {
+                // Si se especificó fecha, validar que sea al menos 1 hora en el futuro
+                long currentTime = System.currentTimeMillis();
+                long oneHourFromNow = currentTime + (60 * 60 * 1000); // 1 hora en milisegundos
+                
+                if (customDeadline < oneHourFromNow) {
+                    Toast.makeText(getContext(), 
+                        "La fecha debe ser al menos 1 hora en el futuro", 
+                        Toast.LENGTH_LONG).show();
+                    isValid = false;
+                }
+            }
+            // Si no se especificó fecha, se programará automáticamente para 24h
+        }
+        
+        return isValid;
+    }
+
+    private void createMissionFromDialog(TextInputEditText titleInput,
+                                       TextInputEditText descriptionInput,
+                                       ChipGroup categoryChipGroup,
+                                       ChipGroup difficultyChipGroup,
+                                       Spinner missionTypeSpinner,
+                                       long customDeadline) {
+        
+        String title = titleInput.getText().toString().trim();
+        String description = descriptionInput.getText().toString().trim();
+        
+        // Obtener categoría seleccionada
+        String category = "";
+        int checkedChipId = categoryChipGroup.getCheckedChipId();
+        if (checkedChipId != View.NO_ID) {
+            Chip selectedChip = categoryChipGroup.findViewById(checkedChipId);
+            category = selectedChip.getText().toString();
+        }
+        
+        // Obtener dificultad seleccionada
+        String difficulty = "";
+        int checkedDifficultyId = difficultyChipGroup.getCheckedChipId();
+        if (checkedDifficultyId != View.NO_ID) {
+            Chip selectedDifficultyChip = difficultyChipGroup.findViewById(checkedDifficultyId);
+            String difficultyText = selectedDifficultyChip.getText().toString();
+            if (difficultyText.contains("Fácil")) {
+                difficulty = "Fácil";
+            } else if (difficultyText.contains("Medio")) {
+                difficulty = "Medio";
+            } else if (difficultyText.contains("Difícil")) {
+                difficulty = "Difícil";
+            }
+        }
+        
+        // Obtener tipo de misión
+        String missionType = missionTypeSpinner.getSelectedItem().toString();
+        boolean isDailyMission = "Diaria".equals(missionType);
+        
+        // Determinar el iconType basado en la categoría
+        String iconType = "default";
+        if (category.equals("Economía")) {
+            iconType = "finanzas";
+        } else if (category.equals("Salud")) {
+            iconType = "salud";
+        } else if (category.equals("Académico")) {
+            iconType = "academico";
+        }
+        
+        Mission newMission = new Mission(
+                UUID.randomUUID().toString(),
+                title,
+                description,
+                isDailyMission ? "Diaria" : category,
+                false,
+                0,  // manaReward (se asignará automáticamente por setDifficulty)
+                iconType,
+                difficulty
+        );
+        
+        // Configurar deadline
+        if (isDailyMission) {
+            // Para misiones diarias, configurar automáticamente para 24 horas
+            newMission.setTimeAmount(1);
+            newMission.setTimeUnit("días");
+            newMission.calculateDeadline();
+        } else {
+            if (customDeadline > 0) {
+                // Usar fecha personalizado si se seleccionó, sino calcular automáticamente
+                newMission.setDeadlineTimestamp(customDeadline);
+            } else {
+                // Si no se especificó fecha, programar para 24h desde ahora
+                long twentyFourHoursFromNow = System.currentTimeMillis() + (24 * 60 * 60 * 1000);
+                newMission.setDeadlineTimestamp(twentyFourHoursFromNow);
+            }
+        }
+        
+        // Asignar la dificultad
+        newMission.setDifficulty(difficulty);
+        
+        // Programar alarma/notificación en Firebase
+        scheduleFirebaseAlarm(newMission);
+    
+        // Guardar la misión
+        dashboardViewModel.addMission(newMission);
+        Toast.makeText(getContext(), "Misión añadida correctamente", Toast.LENGTH_SHORT).show();
     }
 
     // Método para programar alarma en Firebase

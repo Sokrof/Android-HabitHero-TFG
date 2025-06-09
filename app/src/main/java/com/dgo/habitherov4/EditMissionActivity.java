@@ -200,25 +200,65 @@ public class EditMissionActivity extends AppCompatActivity {
         String category = getSelectedCategory();
         String difficulty = getSelectedDifficulty();
         
-        // Validaciones
+        // Limpiar errores previos
+        titleEditText.setError(null);
+        descriptionEditText.setError(null);
+        
+        boolean isValid = true;
+        
+        // Validaciones mejoradas
         if (title.isEmpty()) {
             titleEditText.setError("El título es requerido");
-            return;
+            if (isValid) titleEditText.requestFocus();
+            isValid = false;
+        } else if (title.length() < 3) {
+            titleEditText.setError("El título debe tener al menos 3 caracteres");
+            if (isValid) titleEditText.requestFocus();
+            isValid = false;
+        } else if (title.length() > 50) {
+            titleEditText.setError("El título no puede exceder 50 caracteres");
+            if (isValid) titleEditText.requestFocus();
+            isValid = false;
+        }
+        
+        if (description.length() > 0 && description.length() < 10) {
+            descriptionEditText.setError("La descripción debe tener al menos 10 caracteres");
+            if (isValid) descriptionEditText.requestFocus();
+            isValid = false;
+        } else if (description.length() > 200) {
+            descriptionEditText.setError("La descripción no puede exceder 200 caracteres");
+            if (isValid) descriptionEditText.requestFocus();
+            isValid = false;
         }
         
         if (category == null) {
             Toast.makeText(this, "Selecciona una categoría", Toast.LENGTH_SHORT).show();
-            return;
+            isValid = false;
         }
         
         if (difficulty == null) {
             Toast.makeText(this, "Selecciona una dificultad", Toast.LENGTH_SHORT).show();
-            return;
+            isValid = false;
         }
         
         if (selectedDateTimestamp == 0) {
             Toast.makeText(this, "Selecciona una fecha límite", Toast.LENGTH_SHORT).show();
-            return;
+            isValid = false;
+        } else {
+            // Validar que la fecha sea al menos 1 hora en el futuro
+            long currentTime = System.currentTimeMillis();
+            long oneHourFromNow = currentTime + (60 * 60 * 1000);
+            
+            if (selectedDateTimestamp < oneHourFromNow) {
+                Toast.makeText(this, 
+                    "La fecha debe ser al menos 1 hora en el futuro", 
+                    Toast.LENGTH_LONG).show();
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            return; // No continuar si hay errores
         }
         
         // Crear mapa de actualización
@@ -227,7 +267,7 @@ public class EditMissionActivity extends AppCompatActivity {
         updates.put("description", description);
         updates.put("category", category);
         updates.put("difficulty", difficulty);
-        updates.put("manaReward", getManaForDifficulty(difficulty));  // CAMBIAR de expReward a manaReward
+        updates.put("manaReward", getManaForDifficulty(difficulty));
         updates.put("deadline", selectedDateTimestamp);
         
         // Actualizar en Firestore

@@ -34,4 +34,11 @@
     <color name="category_tag_border">#E55A2B</color>
     <color name="edit_icon_background">#6200EE</color>
     <color name="gold">#FFD700</color>
+    
+    <!-- Colores faltantes -->
+    <color name="background_light">#F5F5F5</color>
+    <color name="border_light">#E0E0E0</color>
+    <color name="primary_color">#2196F3</color>
+    <color name="text_secondary">#757575</color>
+    <color name="success_color">#4CAF50</color>
 </resources>
