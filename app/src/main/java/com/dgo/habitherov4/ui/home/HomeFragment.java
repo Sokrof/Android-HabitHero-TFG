@@ -370,34 +370,41 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     private void observeViewModel() {
         homeViewModel.getMissions().observe(getViewLifecycleOwner(), missions -> {
             if (missions != null) {
-                // Mostrar TODAS las misiones (sin filtrar)
-                missionsAdapter.updateMissions(missions);
+                // Filtrar misiones para mostrar solo las NO completadas en el Home
+                List<Mission> incompleteMissions = new ArrayList<>();
+                for (Mission mission : missions) {
+                    if (!mission.isCompleted()) {
+                        incompleteMissions.add(mission);
+                    }
+                }
+                missionsAdapter.updateMissions(incompleteMissions);
             }
         });
+    
 
         // OBSERVAR CAMBIOS EN EL USUARIO PARA ACTUALIZAR BARRAS
-        homeViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            if (user != null) {
-                Log.d("HomeFragment", "=== USER DATA CHANGED ===");
-                Log.d("HomeFragment", "User stats received - HP: " + user.getCurrentHp() + "/" + user.getMaxHp() +
-                        ", MP: " + user.getCurrentMana() + "/" + user.getMaxMana() +
-                        ", EXP: " + user.getCurrentExp() + "/" + user.getMaxExp());
-                updateAllStatBars(user);
-            } else {
-                Log.w("HomeFragment", "User is null - setting default bars");
-                // Si no hay usuario, mostrar barras por defecto
-                updateHpBar(5);    // HP completa
-                updateManaBar(1);  // MP a 1
-                updateExpBar(0);   // EXP a 0
-            }
-        });
+    homeViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+        if (user != null) {
+            Log.d("HomeFragment", "=== USER DATA CHANGED ===");
+            Log.d("HomeFragment", "User stats received - HP: " + user.getCurrentHp() + "/" + user.getMaxHp() +
+                    ", MP: " + user.getCurrentMana() + "/" + user.getMaxMana() +
+                    ", EXP: " + user.getCurrentExp() + "/" + user.getMaxExp());
+            updateAllStatBars(user);
+        } else {
+            Log.w("HomeFragment", "User is null - setting default bars");
+            // Si no hay usuario, mostrar barras por defecto
+            updateHpBar(5);    // HP completa
+            updateManaBar(1);  // MP a 1
+            updateExpBar(0);   // EXP a 0
+        }
+    });
 
-        homeViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            if (isLoading != null) {
-                Log.d("HomeFragment", "Loading state: " + isLoading);
-            }
-        });
-    }
+    homeViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+        if (isLoading != null) {
+            Log.d("HomeFragment", "Loading state: " + isLoading);
+        }
+    });
+}
 
     private void updateAllStatBars(User user) {
         Log.d("HomeFragment", "=== UPDATING ALL STAT BARS ===");
