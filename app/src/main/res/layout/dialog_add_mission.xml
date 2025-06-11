@@ -104,6 +104,7 @@
             android:id="@+id/chip_easy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Fácil" 
             app:chipIcon="@drawable/ic_facil"
             app:chipIconVisible="true"
             style="@style/Widget.MaterialComponents.Chip.Choice" />
@@ -112,6 +113,7 @@
             android:id="@+id/chip_medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Medio"  
             app:chipIcon="@drawable/ic_medio"
             app:chipIconVisible="true"
             style="@style/Widget.MaterialComponents.Chip.Choice" />
@@ -120,6 +122,7 @@
             android:id="@+id/chip_hard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Difícil" 
             app:chipIcon="@drawable/ic_dificil"
             app:chipIconVisible="true"
             style="@style/Widget.MaterialComponents.Chip.Choice" />

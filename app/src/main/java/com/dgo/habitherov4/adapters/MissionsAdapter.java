@@ -115,29 +115,24 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
                 startCountdown(mission);
             }
             
-            // Configurar background según dificultad
-            String difficulty = mission.getDifficulty();
-            if (difficulty != null) {
-                switch (difficulty.toLowerCase()) {
-                    case "easy":
-                    case "fácil":
-                    case "facil":
-                        cardContainer.setBackgroundResource(R.drawable.bronce);
-                        break;
-                    case "normal":
-                    case "medio":
-                        cardContainer.setBackgroundResource(R.drawable.plata);
-                        break;
-                    case "hard":
-                    case "difícil":
-                    case "dificil":
-                        cardContainer.setBackgroundResource(R.drawable.oro);
-                        break;
-                    default:
-                        cardContainer.setBackgroundResource(R.drawable.mission_card_background);
-                        break;
+                // Configurar background según dificultad
+                String difficulty = mission.getDifficulty();
+                if (difficulty != null) {
+                    switch (difficulty.toLowerCase()) {
+                        case "fácil":
+                            cardContainer.setBackgroundResource(R.drawable.bronce);
+                            break;
+                        case "medio": 
+                            cardContainer.setBackgroundResource(R.drawable.plata);
+                            break;
+                        case "difícil":
+                            cardContainer.setBackgroundResource(R.drawable.oro);
+                            break;
+                        default:
+                            cardContainer.setBackgroundResource(R.drawable.mission_card_background);
+                            break;
+                    }
                 }
-            }
             
             // Configurar icono según la categoría o tipo de misión
             if (mission.isDailyMission()) {
