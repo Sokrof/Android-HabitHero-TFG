@@ -176,7 +176,7 @@ public class HomeViewModel extends ViewModel {
 
     private void updateUserStats(String userId, int manaToAdd, int expToAdd) {
         Log.d("HomeViewModel", "=== UPDATING USER STATS ===");
-        Log.d("HomeViewModel", "Adding: +" + manaToAdd + " MP, +" + expToAdd + " EXP");
+        Log.d("HomeViewModel", "Adding: +" + manaToAdd + " MP, +" + expToAdd);
         
         FirebaseFirestore.getInstance()
             .collection("users")

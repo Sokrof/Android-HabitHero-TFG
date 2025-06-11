@@ -505,7 +505,7 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
                         Log.d("HomeFragment", "Completing mission: " + mission.getTitle() + " for +" + manaReward + " MP");
                         homeViewModel.completeMission(mission.getId());
                         Toast.makeText(getContext(), 
-                            "¡Misión completada! +" + manaReward + " MP, +1 EXP", 
+                            "¡Misión completada! +" + manaReward + " MP", 
                             Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getContext(), "Esta misión ya está completada", 
