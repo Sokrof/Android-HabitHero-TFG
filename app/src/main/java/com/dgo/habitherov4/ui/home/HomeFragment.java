@@ -9,6 +9,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+// Agregar estos imports nuevos:
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -25,6 +36,11 @@ import com.dgo.habitherov4.models.InventoryReward;
 import com.dgo.habitherov4.models.Mission;
 import com.dgo.habitherov4.models.Reward;
 import com.dgo.habitherov4.models.User;
+// Agregar estos imports nuevos:
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -33,6 +49,14 @@ import java.util.List;
 import java.util.Random;
 import android.os.Handler;
 import android.os.Looper;
+// Agregar estos imports nuevos:
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
 
 public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionClickListener {
 
@@ -68,6 +92,12 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
         setupBagClick();
         loadBagCount();
 
+        // Configurar FAB
+        FloatingActionButton addButton = binding.addMissionButton;
+        addButton.setOnClickListener(v -> {
+            showAddMissionDialog();
+        });
+        
         return root;
     }
 
@@ -504,33 +534,6 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     }
 
     @Override
-    public void onMissionClick(Mission mission) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle(mission.getTitle())
-                .setMessage("¿Qué deseas hacer con esta misión?")
-                .setPositiveButton("Completar", (dialog, which) -> {
-                    if (!mission.isCompleted()) {
-                        int manaReward = mission.getManaReward();
-                        Log.d("HomeFragment", "Completing mission: " + mission.getTitle() + " for +" + manaReward + " MP");
-                        homeViewModel.completeMission(mission.getId());
-                        Toast.makeText(getContext(), 
-                            "¡Misión completada! +" + manaReward + " MP", 
-                            Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getContext(), "Esta misión ya está completada", 
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNeutralButton("Editar", (dialog, which) -> {
-                    onEditMissionClick(mission);
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
-    }
-
-    @Override
     public void onEditMissionClick(Mission mission) {
         Intent intent = new Intent(getActivity(), EditMissionActivity.class);
         intent.putExtra("mission_id", mission.getId());
@@ -546,5 +549,331 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void showAddMissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_mission, null);
+        builder.setView(dialogView);
+
+        // Referencias a los campos del diálogo
+        TextInputEditText titleInput = dialogView.findViewById(R.id.edit_mission_title);
+        TextInputEditText descriptionInput = dialogView.findViewById(R.id.edit_mission_description);
+
+        // Referencias a los componentes
+        ChipGroup categoryChipGroup = dialogView.findViewById(R.id.category_chip_group);
+        ChipGroup difficultyChipGroup = dialogView.findViewById(R.id.difficulty_chip_group);
+        Spinner missionTypeSpinner = dialogView.findViewById(R.id.mission_type_spinner);
+        Button selectDeadlineBtn = dialogView.findViewById(R.id.btn_select_deadline);
+        TextView selectedDeadlineText = dialogView.findViewById(R.id.tv_selected_deadline);
+
+        // Variable para almacenar deadline personalizado
+        final long[] customDeadline = {0};
+
+        // Configurar spinner de tipo de misión
+        ArrayAdapter<CharSequence> typeAdapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item,
+                new String[]{"Principal", "Diaria"});
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        missionTypeSpinner.setAdapter(typeAdapter);
+
+        // Listener para ocultar/mostrar selector de fecha según el tipo de misión
+        missionTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedType = parent.getItemAtPosition(position).toString();
+                if ("Diaria".equals(selectedType)) {
+                    selectDeadlineBtn.setVisibility(View.GONE);
+                    selectedDeadlineText.setText("Las misiones diarias se renuevan automáticamente cada 24 horas");
+                    customDeadline[0] = 0;
+                } else {
+                    selectDeadlineBtn.setVisibility(View.VISIBLE);
+                    if (customDeadline[0] == 0) {
+                        selectedDeadlineText.setText("Fecha límite: Se programará automáticamente para 24 horas");
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Configurar selector de fecha límite específica
+        selectDeadlineBtn.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(
+                        getContext(),
+                        (timeView, hourOfDay, minute) -> {
+                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                            calendar.set(Calendar.MINUTE, minute);
+                            calendar.set(Calendar.SECOND, 0);
+
+                            long selectedTime = calendar.getTimeInMillis();
+                            long currentTime = System.currentTimeMillis();
+                            long oneHourFromNow = currentTime + (60 * 60 * 1000);
+
+                            if (selectedTime < oneHourFromNow) {
+                                Toast.makeText(getContext(),
+                                    "La fecha debe ser al menos 1 hora en el futuro",
+                                    Toast.LENGTH_LONG).show();
+                                return;
+                            }
+
+                            customDeadline[0] = selectedTime;
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                            selectedDeadlineText.setText("Fecha límite: " + sdf.format(calendar.getTime()));
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    );
+                    timePickerDialog.show();
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            );
+
+            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+            datePickerDialog.show();
+        });
+
+        // Seleccionar el primer chip por defecto
+        if (categoryChipGroup.getChildCount() > 0) {
+            ((Chip) categoryChipGroup.getChildAt(0)).setChecked(true);
+        }
+        if (difficultyChipGroup.getChildCount() > 0) {
+            ((Chip) difficultyChipGroup.getChildAt(0)).setChecked(true);
+        }
+
+        builder.setPositiveButton("Guardar", (dialog, which) -> {
+            if (validateMissionFields(titleInput, descriptionInput, categoryChipGroup,
+                                    difficultyChipGroup, missionTypeSpinner, customDeadline[0])) {
+                createMissionFromDialog(titleInput, descriptionInput, categoryChipGroup,
+                                      difficultyChipGroup, missionTypeSpinner, customDeadline[0]);
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(view -> {
+                if (validateMissionFields(titleInput, descriptionInput, categoryChipGroup,
+                                        difficultyChipGroup, missionTypeSpinner, customDeadline[0])) {
+                    createMissionFromDialog(titleInput, descriptionInput, categoryChipGroup,
+                                          difficultyChipGroup, missionTypeSpinner, customDeadline[0]);
+                    dialog.dismiss();
+                }
+            });
+        });
+
+        dialog.show();
+    }
+
+    private boolean validateMissionFields(TextInputEditText titleInput,
+                                          TextInputEditText descriptionInput,
+                                          ChipGroup categoryChipGroup,
+                                          ChipGroup difficultyChipGroup,
+                                          Spinner missionTypeSpinner,
+                                          long customDeadline) {
+
+        String title = titleInput.getText().toString().trim();
+        String description = descriptionInput.getText().toString().trim();
+
+        titleInput.setError(null);
+        descriptionInput.setError(null);
+
+        boolean isValid = true;
+
+        if (title.isEmpty()) {
+            titleInput.setError("El título es requerido");
+            if (isValid) titleInput.requestFocus();
+            isValid = false;
+        } else if (title.length() < 3) {
+            titleInput.setError("El título debe tener al menos 3 caracteres");
+            if (isValid) titleInput.requestFocus();
+            isValid = false;
+        } else if (title.length() > 50) {
+            titleInput.setError("El título no puede exceder 50 caracteres");
+            if (isValid) titleInput.requestFocus();
+            isValid = false;
+        }
+
+        if (description.isEmpty()) {
+            descriptionInput.setError("La descripción es requerida");
+            if (isValid) descriptionInput.requestFocus();
+            isValid = false;
+        } else if (description.length() < 10) {
+            descriptionInput.setError("La descripción debe tener al menos 10 caracteres");
+            if (isValid) descriptionInput.requestFocus();
+            isValid = false;
+        } else if (description.length() > 200) {
+            descriptionInput.setError("La descripción no puede exceder 200 caracteres");
+            if (isValid) descriptionInput.requestFocus();
+            isValid = false;
+        }
+
+        if (categoryChipGroup.getCheckedChipId() == View.NO_ID) {
+            Toast.makeText(getContext(), "Selecciona una categoría", Toast.LENGTH_SHORT).show();
+            isValid = false;
+        }
+
+        if (difficultyChipGroup.getCheckedChipId() == View.NO_ID) {
+            Toast.makeText(getContext(), "Selecciona una dificultad", Toast.LENGTH_SHORT).show();
+            isValid = false;
+        }
+
+        String missionType = missionTypeSpinner.getSelectedItem().toString();
+        if (!"Diaria".equals(missionType)) {
+            if (customDeadline > 0) {
+                long currentTime = System.currentTimeMillis();
+                long oneHourFromNow = currentTime + (60 * 60 * 1000);
+
+                if (customDeadline < oneHourFromNow) {
+                    Toast.makeText(getContext(),
+                        "La fecha debe ser al menos 1 hora en el futuro",
+                        Toast.LENGTH_LONG).show();
+                    isValid = false;
+                }
+            }
+        }
+
+        return isValid;
+    }
+
+    private void createMissionFromDialog(TextInputEditText titleInput,
+                                         TextInputEditText descriptionInput,
+                                         ChipGroup categoryChipGroup,
+                                         ChipGroup difficultyChipGroup,
+                                         Spinner missionTypeSpinner,
+                                         long customDeadline) {
+
+        String title = titleInput.getText().toString().trim();
+        String description = descriptionInput.getText().toString().trim();
+
+        String category = "";
+        int checkedChipId = categoryChipGroup.getCheckedChipId();
+        if (checkedChipId != View.NO_ID) {
+            Chip selectedChip = categoryChipGroup.findViewById(checkedChipId);
+            category = selectedChip.getText().toString();
+        }
+
+        String difficulty = "";
+        int checkedDifficultyId = difficultyChipGroup.getCheckedChipId();
+        if (checkedDifficultyId != View.NO_ID) {
+            Chip selectedDifficultyChip = difficultyChipGroup.findViewById(checkedDifficultyId);
+            String difficultyText = selectedDifficultyChip.getText().toString();
+            if (difficultyText.contains("Fácil")) {
+                difficulty = "Fácil";
+            } else if (difficultyText.contains("Medio")) {
+                difficulty = "Medio";
+            } else if (difficultyText.contains("Difícil")) {
+                difficulty = "Difícil";
+            }
+        }
+
+        String missionType = missionTypeSpinner.getSelectedItem().toString();
+        boolean isDailyMission = "Diaria".equals(missionType);
+
+        String iconType = "default";
+        if (category.equals("Economía")) {
+            iconType = "finanzas";
+        } else if (category.equals("Salud")) {
+            iconType = "salud";
+        } else if (category.equals("Académico")) {
+            iconType = "academico";
+        }
+
+        Mission newMission = new Mission(
+                UUID.randomUUID().toString(),
+                title,
+                description,
+                isDailyMission ? "Diaria" : category,
+                false,
+                0,
+                iconType,
+                difficulty
+        );
+
+        if (isDailyMission) {
+            newMission.setTimeAmount(1);
+            newMission.setTimeUnit("días");
+            newMission.calculateDeadline();
+        } else {
+            if (customDeadline > 0) {
+                newMission.setDeadlineTimestamp(customDeadline);
+            } else {
+                long twentyFourHoursFromNow = System.currentTimeMillis() + (24 * 60 * 60 * 1000);
+                newMission.setDeadlineTimestamp(twentyFourHoursFromNow);
+            }
+        }
+
+        newMission.setDifficulty(difficulty);
+
+        scheduleFirebaseAlarm(newMission);
+
+        homeViewModel.addMission(newMission);
+        Toast.makeText(getContext(), "Misión añadida correctamente", Toast.LENGTH_SHORT).show();
+    }
+
+    private void scheduleFirebaseAlarm(Mission mission) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> alarmData = new HashMap<>();
+        alarmData.put("missionId", mission.getId());
+        alarmData.put("userId", currentUserId);
+        alarmData.put("deadlineTimestamp", mission.getDeadlineTimestamp());
+        alarmData.put("title", mission.getTitle());
+        alarmData.put("isActive", true);
+
+        db.collection("mission_alarms")
+            .document(mission.getId())
+            .set(alarmData)
+            .addOnSuccessListener(aVoid -> {
+                Log.d("MissionAlarm", "Alarma programada correctamente");
+            })
+            .addOnFailureListener(e -> {
+                Log.e("MissionAlarm", "Error al programar alarma", e);
+            });
+    }
+
+    @Override
+    public void onMissionClick(Mission mission) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(mission.getTitle())
+                .setMessage("¿Qué deseas hacer con esta misión?")
+                .setPositiveButton("Completar", (dialog, which) -> {
+                    if (!mission.isCompleted()) {
+                        int manaReward = mission.getManaReward();
+                        Log.d("HomeFragment", "Completing mission: " + mission.getTitle() + " for +" + manaReward + " MP");
+                        homeViewModel.completeMission(mission.getId());
+                        Toast.makeText(getContext(),
+                            "¡Misión completada! +" + manaReward + " MP",
+                            Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Esta misión ya está completada",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNeutralButton("Editar", (dialog, which) -> {
+                    onEditMissionClick(mission);
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
     }
 }

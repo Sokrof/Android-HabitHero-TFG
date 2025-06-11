@@ -46,6 +46,23 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+// Eliminar estos imports:
+// import android.app.DatePickerDialog;
+// import android.app.TimePickerDialog;
+// import android.widget.AdapterView;
+// import android.widget.ArrayAdapter;
+// import android.widget.Button;
+// import android.widget.Spinner;
+// import com.google.android.material.chip.Chip;
+// import com.google.android.material.chip.ChipGroup;
+// import com.google.android.material.floatingactionbutton.FloatingActionButton;
+// import com.google.android.material.textfield.TextInputEditText;
+// import java.text.SimpleDateFormat;
+// import java.util.Calendar;
+// import java.util.HashMap;
+// import java.util.Map;
+// import java.util.UUID;
+
 public class DashboardFragment extends Fragment implements MissionsAdapter.OnMissionClickListener {
 
     private FragmentDashboardBinding binding;
@@ -94,10 +111,11 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         });
         
         // Configurar botón de añadir
-        FloatingActionButton addButton = binding.addMissionButton;
-        addButton.setOnClickListener(v -> {
-            showAddMissionDialog();
-        });
+        // Eliminar estas líneas:
+        // FloatingActionButton addButton = binding.addMissionButton;
+        // addButton.setOnClickListener(v -> {
+        //     showAddMissionDialog();
+        // });
         
         // Observar cambios en las misiones
         dashboardViewModel.getMissions().observe(getViewLifecycleOwner(), missions -> {

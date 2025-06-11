@@ -307,4 +307,47 @@ public class HomeViewModel extends ViewModel {
                 });
         }
     }
+
+    public void addMission(Mission mission) {
+        String userId = getCurrentUserId();
+        if (userId == null) return;
+        
+        // Generar un ID único si no tiene uno
+        if (mission.getId() == null || mission.getId().isEmpty()) {
+            mission.setId(java.util.UUID.randomUUID().toString());
+        }
+        
+        // Guardar la misión en Firestore
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("missions")
+            .document(mission.getId())
+            .set(mission)
+            .addOnSuccessListener(aVoid -> {
+                Log.d("HomeViewModel", "✓ Mission added successfully");
+                // La lista se actualizará automáticamente por el listener
+            })
+            .addOnFailureListener(e -> {
+                Log.e("HomeViewModel", "✗ Error adding mission", e);
+            });
+    }
+    
+    public void updateMission(Mission updatedMission) {
+        String userId = getCurrentUserId();
+        if (userId == null) return;
+        
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("missions")
+            .document(updatedMission.getId())
+            .set(updatedMission)
+            .addOnSuccessListener(aVoid -> {
+                Log.d("HomeViewModel", "✓ Mission updated successfully");
+            })
+            .addOnFailureListener(e -> {
+                Log.e("HomeViewModel", "✗ Error updating mission", e);
+            });
+    }
 }

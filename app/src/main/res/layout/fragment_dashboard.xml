@@ -26,10 +26,9 @@
 
             <EditText
                 android:id="@+id/search_missions"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="36dp"
-                android:layout_weight="1"
                 android:background="@drawable/circle_background_white"
                 android:drawableStart="@android:drawable/ic_menu_search"
                 android:drawablePadding="8dp"
@@ -38,14 +37,7 @@
                 android:paddingEnd="16dp"
                 android:textSize="16sp" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/add_mission_button"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="36dp"
-                android:contentDescription="Añadir misión"
-                android:src="@android:drawable/ic_input_add" />
+            <!-- Eliminar el FAB de aquí -->
         </LinearLayout>
 
     </LinearLayout>
