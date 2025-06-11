@@ -378,6 +378,15 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
                     }
                 }
                 missionsAdapter.updateMissions(incompleteMissions);
+                
+                // Mostrar/ocultar mensaje de misiones vacías
+                if (incompleteMissions.isEmpty()) {
+                    binding.missionsRecyclerView.setVisibility(View.GONE);
+                    binding.emptyMissionsMessage.setVisibility(View.VISIBLE);
+                } else {
+                    binding.missionsRecyclerView.setVisibility(View.VISIBLE);
+                    binding.emptyMissionsMessage.setVisibility(View.GONE);
+                }
             }
         });
     

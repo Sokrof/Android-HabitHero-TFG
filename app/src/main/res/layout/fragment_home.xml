@@ -250,4 +250,23 @@
         android:paddingBottom="80dp"
         tools:listitem="@layout/item_mission" />
 
+    <!-- Mensaje cuando no hay misiones -->
+    <TextView
+        android:id="@+id/empty_missions_message"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="Crea tu primera misión para empezar"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="1"
+        android:visibility="gone"
+        android:paddingTop="56dp"
+        android:paddingBottom="80dp" />
+
 </LinearLayout>
