@@ -19,7 +19,34 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.dgo.habitherov4.databinding.FragmentDashboardBinding;
+import com.dgo.habitherov4.models.Mission;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -63,7 +90,7 @@ import java.util.UUID;
 // import java.util.Map;
 // import java.util.UUID;
 
-public class DashboardFragment extends Fragment implements MissionsAdapter.OnMissionClickListener {
+public class DashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
     private DashboardViewModel dashboardViewModel;
@@ -88,88 +115,49 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         allMissions = new ArrayList<>();
         dailyMissions = new ArrayList<>();
         activeMissions = new ArrayList<>();
-        
-        // Inicializar RecyclerViews después de crear las listas
-        setupRecyclerViews();
-        
+
         // Inicializar el contador de misiones diarias
         initializeDailyMissionsCountdown();
-        
-        // Configurar búsqueda
-        EditText searchEditText = binding.searchMissions;
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-    
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterMissions(s.toString());
-            }
-    
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-        
-        // Configurar botón de añadir
-        // Eliminar estas líneas:
-        // FloatingActionButton addButton = binding.addMissionButton;
-        // addButton.setOnClickListener(v -> {
-        //     showAddMissionDialog();
-        // });
         
         // Observar cambios en las misiones
         dashboardViewModel.getMissions().observe(getViewLifecycleOwner(), missions -> {
             allMissions = missions;
             updateMissionsDisplay();
-            updateMissionCounters();
         });
 
         return root;
     }
 
-    private void setupRecyclerViews() {
-        // Configurar RecyclerView para misiones diarias
-        RecyclerView dailyRecyclerView = binding.dailyMissionsRecyclerView;
-        dailyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        dailyMissionsAdapter = new MissionsAdapter(dailyMissions, this);
-        dailyRecyclerView.setAdapter(dailyMissionsAdapter);
-        
-        // Configurar RecyclerView para misiones activas
-        RecyclerView activeRecyclerView = binding.missionsRecyclerView;
-        activeRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        activeMissionsAdapter = new MissionsAdapter(activeMissions, this);
-        activeRecyclerView.setAdapter(activeMissionsAdapter);
-    }
-
-    private void updateMissionsDisplay() {
-        if (allMissions == null) return;
-        
-        // Asegurarse de que las listas estén inicializadas
-        if (dailyMissions == null) dailyMissions = new ArrayList<>();
-        if (activeMissions == null) activeMissions = new ArrayList<>();
-        
-        dailyMissions.clear();
-        activeMissions.clear();
-        
-        for (Mission mission : allMissions) {
-            if ("Diaria".equals(mission.getCategory())) {
-                dailyMissions.add(mission);
-            } else {
-                activeMissions.add(mission);
-            }
-        }
-        
-        // Actualizar adaptadores
-        dailyMissionsAdapter.updateMissions(dailyMissions);
-        activeMissionsAdapter.updateMissions(activeMissions);
-        
-        // Mostrar/ocultar sección de misiones diarias
-        if (dailyMissions.isEmpty()) {
-            binding.dailyMissionsSection.setVisibility(View.GONE);
+   // Método corregido para actualizar las estadísticas cuando cambian las misiones
+private void updateMissionsDisplay() {
+    if (allMissions == null) return;
+    
+    // Asegurarse de que las listas estén inicializadas
+    if (dailyMissions == null) dailyMissions = new ArrayList<>();
+    if (activeMissions == null) activeMissions = new ArrayList<>();
+    
+    dailyMissions.clear();
+    activeMissions.clear();
+    
+    for (Mission mission : allMissions) {
+        if ("Diaria".equals(mission.getCategory())) {
+            dailyMissions.add(mission);
         } else {
-            binding.dailyMissionsSection.setVisibility(View.VISIBLE);
+            activeMissions.add(mission);
         }
     }
+    
+    // Only update adapters if they exist
+    if (dailyMissionsAdapter != null) {
+        dailyMissionsAdapter.updateMissions(dailyMissions);
+    }
+    if (activeMissionsAdapter != null) {
+        activeMissionsAdapter.updateMissions(activeMissions);
+    }
+    
+    // IMPORTANTE: Actualizar estadísticas cuando cambien las misiones
+    updateStatistics();
+}
     
     private void filterMissions(String query) {
         if (query.isEmpty()) {
@@ -199,40 +187,13 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         dailyMissions.addAll(filteredDaily);
         activeMissions.clear();
         activeMissions.addAll(filteredActive);
-        
-        // Actualizar adaptadores
-        dailyMissionsAdapter.updateMissions(dailyMissions);
-        activeMissionsAdapter.updateMissions(activeMissions);
-        
-        // Mostrar/ocultar sección de misiones diarias
-        if (dailyMissions.isEmpty()) {
-            binding.dailyMissionsSection.setVisibility(View.GONE);
-        } else {
-            binding.dailyMissionsSection.setVisibility(View.VISIBLE);
+   
+        // Only update adapters if they exist
+        if (dailyMissionsAdapter != null) {
+            dailyMissionsAdapter.updateMissions(dailyMissions);
         }
-    }
-    
-    private void updateMissionCounters() {
-        // Actualizar contador de misiones activas
-        binding.activeMissionsCount.setText(String.valueOf(activeMissions.size()));
-        
-        // Actualizar estado de misiones diarias
-        if (dailyMissions.isEmpty()) {
-            binding.dailyMissionsStatus.setText("No tienes misiones diarias");
-        } else {
-            boolean allCompleted = true;
-            for (Mission mission : dailyMissions) {
-                if (!mission.isCompleted()) {
-                    allCompleted = false;
-                    break;
-                }
-            }
-            
-            if (allCompleted) {
-                binding.dailyMissionsStatus.setText("Has completado tus misiones diarias!");
-            } else {
-                binding.dailyMissionsStatus.setText("Tienes misiones pendientes");
-            }
+        if (activeMissionsAdapter != null) {
+            activeMissionsAdapter.updateMissions(activeMissions);
         }
     }
 
@@ -282,7 +243,6 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         
         // Actualizar el TextView
         String countdownText = String.format(Locale.getDefault(), "%d h %d min", hours, minutes);
-        binding.dailyMissionsTime.setText(countdownText);
     }
     
     // Nuevo método para restablecer las misiones diarias
@@ -296,7 +256,7 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                     hasChanges = true;
                 }
             }
-            
+
             if (hasChanges) {
                 // Actualizar en la base de datos
                 for (Mission mission : allMissions) {
@@ -304,57 +264,14 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
                         dashboardViewModel.updateMission(mission);
                     }
                 }
-                
+
                 // Actualizar la UI
                 updateMissionsDisplay();
-                updateMissionCounters();
-                
+
                 // Mostrar notificación al usuario
                 Toast.makeText(getContext(), "¡Las misiones diarias se han restablecido!", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-    
-    @Override
-    public void onMissionClick(Mission mission) {
-        // Mostrar AlertDialog con opciones "Completar" y "Editar"
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle(mission.getTitle())
-                .setMessage("¿Qué deseas hacer con esta misión?")
-                .setPositiveButton("Completar", (dialog, which) -> {
-                    if (!mission.isCompleted()) {
-                        dashboardViewModel.completeMission(mission.getId());
-                        Toast.makeText(getContext(), "¡Misión completada! +" + mission.getManaReward() + " Maná",
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getContext(), "Esta misión ya está completada",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNeutralButton("Editar", (dialog, which) -> {
-                    onEditMissionClick(mission);
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
-    }
-
-    @Override
-    public void onEditMissionClick(Mission mission) {
-
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        
-        // Limpiar el handler para evitar memory leaks
-        if (countdownHandler != null && countdownRunnable != null) {
-            countdownHandler.removeCallbacks(countdownRunnable);
-        }
-        
-        binding = null;
     }
 
     private void showAddMissionDialog() {
@@ -711,5 +628,221 @@ public class DashboardFragment extends Fragment implements MissionsAdapter.OnMis
         
         // Por ahora, retorna un ID temporal o implementa tu lógica de autenticación
         return "temp_user_id";
+    }
+
+    private void updateStatistics() {
+        if (allMissions == null) return;
+    
+        // Calcular estadísticas
+        int totalMissions = allMissions.size();
+        int completedMissions = 0;
+        int expiredMissions = 0;
+        int pendingMissions = 0; // Agregar contador de pendientes
+        int easyMissions = 0;
+        int mediumMissions = 0;
+        int hardMissions = 0;
+    
+        long currentTime = System.currentTimeMillis();
+    
+        for (Mission mission : allMissions) {
+            if (mission.isCompleted()) {
+                completedMissions++;
+            } else if (mission.getDeadlineTimestamp() > 0 && mission.getDeadlineTimestamp() < currentTime) {
+                expiredMissions++;
+            } else {
+                // Si no está completada ni expirada, entonces está pendiente
+                pendingMissions++;
+            }
+    
+            // Contar por dificultad
+            String difficulty = mission.getDifficulty();
+            if (difficulty != null) {
+                switch (difficulty.toLowerCase()) {
+                    case "fácil":
+                        easyMissions++;
+                        break;
+                    case "medio":
+                        mediumMissions++;
+                        break;
+                    case "difícil":
+                        hardMissions++;
+                        break;
+                }
+            }
+        }
+    
+        // Actualizar cards de estadísticas
+        if (binding.totalMissionsCount != null) {
+            binding.totalMissionsCount.setText(String.valueOf(totalMissions));
+        }
+        if (binding.completedMissionsCount != null) {
+            binding.completedMissionsCount.setText(String.valueOf(completedMissions));
+        }
+        if (binding.expiredMissionsCount != null) {
+            binding.expiredMissionsCount.setText(String.valueOf(expiredMissions));
+        }
+    
+        // Configurar gráfico circular con las tres categorías correctas
+        setupPieChart(completedMissions, expiredMissions, pendingMissions);
+    
+        // Configurar gráfico de barras
+        setupBarChart(easyMissions, mediumMissions, hardMissions);
+    
+        // Calcular progreso semanal
+        updateWeeklyProgress();
+    }
+
+    private void setupPieChart(int completed, int expired, int pending) {
+        PieChart pieChart = binding.pieChart;
+        
+        if (pieChart == null) return;
+    
+        List<PieEntry> entries = new ArrayList<>();
+        List<Integer> colors = new ArrayList<>();
+        
+        // Solo agregar categorías que tengan valores > 0
+        if (completed > 0) {
+            entries.add(new PieEntry(completed, "Completadas"));
+            colors.add(Color.rgb(76, 175, 80)); // Verde para completadas
+        }
+        
+        if (expired > 0) {
+            entries.add(new PieEntry(expired, "Expiradas"));
+            colors.add(Color.rgb(244, 67, 54)); // Rojo para expiradas
+        }
+        
+        if (pending > 0) {
+            entries.add(new PieEntry(pending, "Pendientes"));
+            colors.add(Color.rgb(255, 193, 7)); // Amarillo para pendientes
+        }
+    
+        // Si no hay datos, mostrar un placeholder
+        if (entries.isEmpty()) {
+            entries.add(new PieEntry(1, "Sin misiones"));
+            colors.add(Color.rgb(158, 158, 158)); // Gris para sin datos
+        }
+    
+        PieDataSet dataSet = new PieDataSet(entries, "");
+        dataSet.setColors(colors);
+        dataSet.setValueTextSize(12f);
+        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setSliceSpace(2f); // Espacio entre las secciones
+        dataSet.setSelectionShift(8f); // Efecto al seleccionar
+    
+        PieData data = new PieData(dataSet);
+        
+        // Formatear los valores para mostrar números enteros
+        data.setValueFormatter(new com.github.mikephil.charting.formatter.ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.valueOf((int) value);
+            }
+        });
+    
+        pieChart.setData(data);
+    
+        // Configuración del gráfico
+        Description desc = new Description();
+        desc.setText("");
+        pieChart.setDescription(desc);
+        
+        // Configuración del agujero central
+        pieChart.setDrawHoleEnabled(true);
+        pieChart.setHoleRadius(40f);
+        pieChart.setTransparentCircleRadius(45f);
+        pieChart.setHoleColor(Color.WHITE);
+        
+        // Configuración de la leyenda
+        pieChart.getLegend().setEnabled(true);
+        pieChart.getLegend().setTextSize(12f);
+        pieChart.getLegend().setForm(com.github.mikephil.charting.components.Legend.LegendForm.CIRCLE);
+        
+        // Configuración de entrada de texto
+        pieChart.setEntryLabelTextSize(10f);
+        pieChart.setEntryLabelColor(Color.BLACK);
+        
+        // Animación
+        pieChart.animateY(1000);
+        
+        // Actualizar el gráfico
+        pieChart.invalidate();
+    }
+
+    private void setupBarChart(int easy, int medium, int hard) {
+        BarChart barChart = binding.barChart;
+
+        List<BarEntry> entries = new ArrayList<>();
+        entries.add(new BarEntry(0f, easy));
+        entries.add(new BarEntry(1f, medium));
+        entries.add(new BarEntry(2f, hard));
+
+        BarDataSet dataSet = new BarDataSet(entries, "Misiones por Dificultad");
+        dataSet.setColors(new int[]{Color.rgb(205, 127, 50), Color.rgb(192, 192, 192), Color.rgb(255, 215, 0)});
+        dataSet.setValueTextSize(12f);
+
+        BarData data = new BarData(dataSet);
+        data.setBarWidth(0.5f);
+
+        barChart.setData(data);
+        Description desc = new Description();
+        desc.setText("");
+        barChart.setDescription(desc);
+        barChart.animateY(1000);
+        barChart.invalidate();
+    }
+
+    // Método corregido para el progreso semanal
+private void updateWeeklyProgress() {
+    if (allMissions == null) return;
+
+    // Obtener fecha actual
+    Calendar now = Calendar.getInstance();
+    Calendar startOfWeek = Calendar.getInstance();
+    
+    // Configurar inicio de semana (lunes)
+    startOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+    startOfWeek.set(Calendar.HOUR_OF_DAY, 0);
+    startOfWeek.set(Calendar.MINUTE, 0);
+    startOfWeek.set(Calendar.SECOND, 0);
+    startOfWeek.set(Calendar.MILLISECOND, 0);
+    
+    long startOfWeekTimestamp = startOfWeek.getTimeInMillis();
+    
+    // Progreso semanal: objetivo de 7 misiones completadas esta semana
+    int weeklyTarget = 7;
+    int weeklyCompleted = 0;
+
+    // Contar solo las misiones completadas en esta semana
+    for (Mission mission : allMissions) {
+        if (mission.isCompleted()) {
+            // Si tienes timestamp de cuando se completó la misión, úsalo aquí
+            // Por ahora contamos todas las completadas
+            // TODO: Agregar campo completedTimestamp a Mission para filtrar por semana actual
+            weeklyCompleted++;
+        }
+    }
+
+    // Limitar el progreso al máximo del objetivo
+    int actualCompleted = Math.min(weeklyCompleted, weeklyTarget);
+    int progress = weeklyTarget > 0 ? (actualCompleted * 100) / weeklyTarget : 0;
+
+    if (binding.weeklyProgress != null) {
+        binding.weeklyProgress.setProgress(progress);
+    }
+    if (binding.weeklyProgressText != null) {
+        binding.weeklyProgressText.setText(progress + "% completado esta semana (" + actualCompleted + "/" + weeklyTarget + ")");
+    }
+}
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        // Limpiar el handler para evitar memory leaks
+        if (countdownHandler != null && countdownRunnable != null) {
+            countdownHandler.removeCallbacks(countdownRunnable);
+        }
+
+        binding = null;
     }
 }

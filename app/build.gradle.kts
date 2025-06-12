@@ -45,13 +45,16 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     
+    // MPAndroidChart para gráficos
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
     
-    // Google Sign-In (versión actualizada)
+    // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     
     // Credentials API
