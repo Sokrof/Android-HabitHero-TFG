@@ -712,20 +712,6 @@ public class HomeFragment extends Fragment implements MissionsAdapter.OnMissionC
             isValid = false;
         }
 
-        if (description.isEmpty()) {
-            descriptionInput.setError("La descripción es requerida");
-            if (isValid) descriptionInput.requestFocus();
-            isValid = false;
-        } else if (description.length() < 10) {
-            descriptionInput.setError("La descripción debe tener al menos 10 caracteres");
-            if (isValid) descriptionInput.requestFocus();
-            isValid = false;
-        } else if (description.length() > 200) {
-            descriptionInput.setError("La descripción no puede exceder 200 caracteres");
-            if (isValid) descriptionInput.requestFocus();
-            isValid = false;
-        }
-
         if (categoryChipGroup.getCheckedChipId() == View.NO_ID) {
             Toast.makeText(getContext(), "Selecciona una categoría", Toast.LENGTH_SHORT).show();
             isValid = false;

@@ -647,7 +647,7 @@ private void updateMissionsDisplay() {
         for (Mission mission : allMissions) {
             if (mission.isCompleted()) {
                 completedMissions++;
-            } else if (mission.getDeadlineTimestamp() > 0 && mission.getDeadlineTimestamp() < currentTime) {
+            } else if (mission.isExpired()) {
                 expiredMissions++;
             } else {
                 // Si no está completada ni expirada, entonces está pendiente

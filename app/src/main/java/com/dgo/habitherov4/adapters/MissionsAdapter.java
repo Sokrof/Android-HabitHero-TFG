@@ -60,10 +60,10 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
     }
     
     public void updateMissions(List<Mission> newMissions) {
-        // Filtrar misiones completadas
+        // Filtrar misiones completadas Y expiradas
         List<Mission> filteredMissions = new ArrayList<>();
         for (Mission mission : newMissions) {
-            if (!mission.isCompleted()) {
+            if (!mission.isCompleted() && !mission.isExpired()) {
                 filteredMissions.add(mission);
             }
         }
@@ -105,13 +105,17 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
                 handler.removeCallbacks(countdownRunnable);
             }
             
-            // Verificar si la misión está completada
+            // Verificar si la misión está completada O expirada
             if (mission.isCompleted()) {
                 expTextView.setText("COMPLETADO");
                 expTextView.setTextColor(Color.GREEN);
                 expTextView.setBackgroundResource(R.drawable.timer_background);
+            } else if (mission.isExpired()) {
+                expTextView.setText("EXPIRADO");
+                expTextView.setTextColor(Color.RED);
+                expTextView.setBackgroundResource(R.drawable.timer_background);
             } else {
-                // Iniciar contador de tiempo
+                // Iniciar contador de tiempo solo si no está completada ni expirada
                 startCountdown(mission);
             }
             
@@ -175,10 +179,17 @@ public class MissionsAdapter extends RecyclerView.Adapter<MissionsAdapter.Missio
             countdownRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    // Verificar si la misión se completó durante el contador
+                    // Verificar si la misión se completó O expiró durante el contador
                     if (mission.isCompleted()) {
                         expTextView.setText("COMPLETADO");
                         expTextView.setTextColor(Color.GREEN);
+                        expTextView.setBackgroundResource(R.drawable.timer_background);
+                        return;
+                    }
+                    
+                    if (mission.isExpired()) {
+                        expTextView.setText("EXPIRADO");
+                        expTextView.setTextColor(Color.RED);
                         expTextView.setBackgroundResource(R.drawable.timer_background);
                         return;
                     }
