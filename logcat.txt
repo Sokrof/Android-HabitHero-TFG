@@ -1,9 +1,27 @@
-Android resource linking failed
-com.dgo.habitherov4.app-main-60:/drawable/circle_background_light.xml:4: error: resource color/background_light (aka com.dgo.habitherov4:color/background_light) not found.
-com.dgo.habitherov4.app-main-60:/drawable/circle_background_light.xml:7: error: resource color/border_light (aka com.dgo.habitherov4:color/border_light) not found.
-com.dgo.habitherov4.app-mergeDebugResources-57:/layout/fragment_dashboard.xml:88: error: resource color/primary_color (aka com.dgo.habitherov4:color/primary_color) not found.
-com.dgo.habitherov4.app-mergeDebugResources-57:/layout/fragment_dashboard.xml:108: error: resource color/text_secondary (aka com.dgo.habitherov4:color/text_secondary) not found.
-com.dgo.habitherov4.app-mergeDebugResources-57:/layout/fragment_dashboard.xml:165: error: resource color/success_color (aka com.dgo.habitherov4:color/success_color) not found.
-com.dgo.habitherov4.app-mergeDebugResources-57:/layout/section_missions_by_difficulty.xml:20: error: resource drawable/ic_star (aka com.dgo.habitherov4:drawable/ic_star) not found.
-error: failed linking file resources.
+BUILD SUCCESSFUL in 8s
+1 actionable task: 1 executed
+PS F:\Habit Hero\HabitHeroV4> keytool -list -v -keystore "f:\Habit Hero\HabitHeroV4\app\app-release-key.jks"                                                                                                                        
+Introduzca la contraseña del almacén de claves:                                                                                                                                                                                     
 
+*****************  WARNING WARNING WARNING  *****************
+* La integridad de la información almacenada en el almacén de claves  *
+* NO se ha comprobado.  Para comprobar dicha integridad, *
+* debe proporcionar la contraseña del almacén de claves.                  *
+*****************  WARNING WARNING WARNING  *****************
+
+Tipo de Almacén de Claves: PKCS12
+Proveedor de Almacén de Claves: SUN
+
+Su almacén de claves contiene 1 entrada
+
+Nombre de Alias: habitherov4-key
+Fecha de Creación: 12 jun 2025
+Tipo de Entrada: PrivateKeyEntry
+Longitud de la Cadena de Certificado: 0
+
+
+*******************************************
+*******************************************
+
+
+PS F:\Habit Hero\HabitHeroV4> 

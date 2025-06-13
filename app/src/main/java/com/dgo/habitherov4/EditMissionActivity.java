@@ -2,12 +2,15 @@ package com.dgo.habitherov4;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.AdapterView;
+import java.util.Arrays;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -51,6 +54,9 @@ public class EditMissionActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         
+        // AGREGAR: Inicializar selectedDate
+        selectedDate = Calendar.getInstance();
+        
         // Inicializar vistas
         titleEditText = findViewById(R.id.titleEditText);
         descriptionEditText = findViewById(R.id.descriptionEditText);
@@ -80,9 +86,16 @@ public class EditMissionActivity extends AppCompatActivity {
         selectDifficultyChip(difficulty);
         
         // Mostrar fecha
+        // AGREGAR: Configurar selectedDate con la fecha existente
         if (selectedDateTimestamp > 0) {
+            selectedDate.setTimeInMillis(selectedDateTimestamp);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             dateButton.setText(sdf.format(new Date(selectedDateTimestamp)));
+        } else {
+            // Si no hay fecha, usar fecha actual + 24 horas como default
+            selectedDate.add(Calendar.DAY_OF_MONTH, 1);
+            selectedDateTimestamp = selectedDate.getTimeInMillis();
+            updateDateButton();
         }
         
         // Configurar listeners
@@ -175,22 +188,55 @@ public class EditMissionActivity extends AppCompatActivity {
     }
     
     private void showDatePicker() {
+        // DatePickerDialog
         DatePickerDialog datePickerDialog = new DatePickerDialog(
             this,
             (view, year, month, dayOfMonth) -> {
-                selectedDate.set(year, month, dayOfMonth);
-                selectedDateTimestamp = selectedDate.getTimeInMillis();
-                updateDateButton();
+                selectedDate.set(Calendar.YEAR, year);
+                selectedDate.set(Calendar.MONTH, month);
+                selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                
+                // TimePickerDialog
+                TimePickerDialog timePickerDialog = new TimePickerDialog(
+                    this,
+                    (timeView, hourOfDay, minute) -> {
+                        selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        selectedDate.set(Calendar.MINUTE, minute);
+                        selectedDate.set(Calendar.SECOND, 0);
+                        
+                        // Validar que la fecha sea al menos 1 hora en el futuro
+                        long selectedTime = selectedDate.getTimeInMillis();
+                        long currentTime = System.currentTimeMillis();
+                        long oneHourFromNow = currentTime + (60 * 60 * 1000);
+                        
+                        if (selectedTime < oneHourFromNow) {
+                            Toast.makeText(this, 
+                                "La fecha debe ser al menos 1 hora en el futuro", 
+                                Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        
+                        selectedDateTimestamp = selectedTime;
+                        updateDateButton();
+                    },
+                    selectedDate.get(Calendar.HOUR_OF_DAY),
+                    selectedDate.get(Calendar.MINUTE),
+                    true
+                );
+                timePickerDialog.show();
             },
             selectedDate.get(Calendar.YEAR),
             selectedDate.get(Calendar.MONTH),
             selectedDate.get(Calendar.DAY_OF_MONTH)
         );
+        
+        // No permitir fechas pasadas
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
     
     private void updateDateButton() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         dateButton.setText(sdf.format(selectedDate.getTime()));
     }
     

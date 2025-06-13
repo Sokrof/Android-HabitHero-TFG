@@ -35,13 +35,14 @@
                 android:layout_gravity="start"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="4dp"
+                android:fontFamily="sans-serif"
                 android:shadowColor="@android:color/black"
                 android:shadowDx="2"
                 android:shadowDy="2"
                 android:shadowRadius="1"
                 android:text="Nivel: 1"
-                android:textColor="#FFD700"
-                android:textSize="16sp"
+                android:textColor="#FF0056"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <!-- Barras de estadísticas -->
@@ -126,7 +127,7 @@
                     android:shadowRadius="1"
                     android:text="Items: 0"
                     android:textColor="#FFD700"
-                    android:textSize="14sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:visibility="visible" />
 
@@ -163,7 +164,7 @@
                     android:shadowRadius="1"
                     android:text="Cofres: 0"
                     android:textColor="#FFD700"
-                    android:textSize="14sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:visibility="visible" />
 
@@ -181,8 +182,8 @@
             android:layout_height="182dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginLeft="60dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="72dp"
+            android:layout_marginBottom="7dp"
             android:scaleType="fitXY"
             android:src="@drawable/personaje" />
 
@@ -237,16 +238,16 @@
         </LinearLayout>
 
     <!-- Agregar FAB en la esquina inferior derecha -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_mission_button"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="Añadir misión"
-        android:src="@android:drawable/ic_input_add" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_mission_button"
+            android:layout_width="95dp"
+            android:layout_height="92dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Añadir misión"
+            android:src="@android:drawable/ic_input_add" />
 
     </RelativeLayout>
 

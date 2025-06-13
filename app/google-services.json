@@ -7,35 +7,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:770063004398:android:b51d6aca961c32de9a39ff",
-        "android_client_info": {
-          "package_name": "com.dgo.habithero"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBQZ5sMZwS5a9faWaGtM7oJ8aP94FdpCeE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "770063004398-b2i6hrcodtntk0ih691ebic1u20e3kvc.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:770063004398:android:b61847e59cddd37a9a39ff",
         "android_client_info": {
           "package_name": "com.dgo.habitherov4"
@@ -43,11 +14,27 @@
       },
       "oauth_client": [
         {
-          "client_id": "770063004398-l313ch35apq7dpes295hovbqbbgre8ub.apps.googleusercontent.com",
+          "client_id": "770063004398-63me65s8qe75gldi4lmkq3o473nth122.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dgo.habitherov4",
             "certificate_hash": "fb2a0f2135b2df329efa0152af2374d490da2c2d"
+          }
+        },
+        {
+          "client_id": "770063004398-7imq13fqba8qkejj0ql6gbnb1buu7b4b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dgo.habitherov4",
+            "certificate_hash": "fb2a8f2135b2df329efa0152af2374d498286c9d"
+          }
+        },
+        {
+          "client_id": "770063004398-r1sf1gs6db546r80dsaej87tlcf4404e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dgo.habitherov4",
+            "certificate_hash": "2fbad0501ab211458189b629d22b34198928bad8"
           }
         },
         {

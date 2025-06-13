@@ -17,6 +17,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+        signingConfigs {
+            create("release") {
+                storeFile = file("app-release-key.jks")
+                storePassword = "@15975324860XzX"
+                keyAlias = "habitherov4-key"  // Changed from "key" to "habitherov4-key"
+                keyPassword = "@15975324860XzX"
+            }
+        }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -24,6 +33,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -53,15 +63,10 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
-    
-    // Google Sign-In
+
     implementation("com.google.android.gms:play-services-auth:20.7.0")
-    
-    // Credentials API
-    implementation(libs.credentials)
-    implementation(libs.credentials.play.services.auth)
-    implementation(libs.googleid)
-    
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
