@@ -18,6 +18,7 @@ public class RewardsAdapter extends RecyclerView.Adapter<RewardsAdapter.RewardVi
     private List<Reward> rewards;
     private OnRewardClickListener onRewardClickListener;
 
+    // Listener que maneja los clicks de las recompensas
     public interface OnRewardClickListener {
         void onRewardClick(Reward reward, int position);
     }
@@ -43,8 +44,10 @@ public class RewardsAdapter extends RecyclerView.Adapter<RewardsAdapter.RewardVi
         Reward reward = rewards.get(position);
         holder.titleTextView.setText(reward.getTitle());
         holder.descriptionTextView.setText(reward.getDescription());
-        
+
         // Cambiar apariencia si está reclamada
+        // Nota: Esto tampoco lo usamos en la versión final, simplemente limpiamos
+        // el item reclamado, pero lo mantengo para seguir desarrollando la APP después del TFG
         if (reward.isClaimed()) {
             holder.itemView.setAlpha(0.6f);
             holder.titleTextView.setTextColor(holder.itemView.getContext().getColor(android.R.color.darker_gray));
@@ -61,6 +64,7 @@ public class RewardsAdapter extends RecyclerView.Adapter<RewardsAdapter.RewardVi
         });
     }
 
+    // Contador de recompensas
     @Override
     public int getItemCount() {
         return rewards.size();

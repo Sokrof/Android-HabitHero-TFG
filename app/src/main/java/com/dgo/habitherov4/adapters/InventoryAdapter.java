@@ -4,10 +4,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.dgo.habitherov4.R;
 import com.dgo.habitherov4.models.InventoryReward;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -17,10 +20,13 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
     private List<InventoryReward> inventoryItems;
     private OnInventoryItemClickListener listener;
 
+
+    // Cuando clickamos en inventario, nos permite reclamar recompensas
     public interface OnInventoryItemClickListener {
         void onInventoryItemClick(InventoryReward item);
     }
 
+    // Constructor del Adapter
     public InventoryAdapter(List<InventoryReward> inventoryItems, OnInventoryItemClickListener listener) {
         this.inventoryItems = inventoryItems;
         this.listener = listener;
@@ -38,7 +44,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         InventoryReward item = inventoryItems.get(position);
         holder.titleTextView.setText(item.getTitle());
         holder.descriptionTextView.setText(item.getDescription());
-        
+
         // Formatear fecha
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         String dateText = "Obtenido: " + sdf.format(item.getObtainedAt().toDate());
@@ -51,6 +57,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         });
     }
 
+    // Devuelve el número total de elementos en la lista del inventario
     @Override
     public int getItemCount() {
         return inventoryItems.size();

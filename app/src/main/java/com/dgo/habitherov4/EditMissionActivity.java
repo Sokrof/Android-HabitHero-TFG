@@ -1,17 +1,10 @@
 package com.dgo.habitherov4;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.AdapterView;
-import java.util.Arrays;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class EditMissionActivity extends AppCompatActivity {
-    
+
     private TextInputEditText titleEditText;
     private TextInputEditText descriptionEditText;
     private ChipGroup categoryChipGroup;
@@ -37,26 +30,26 @@ public class EditMissionActivity extends AppCompatActivity {
     private Button dateButton;
     private Button saveButton;
     private Button deleteButton;
-    
+
     private String missionId;
     private long selectedDateTimestamp;
     private Calendar selectedDate;
-    
+
     private FirebaseFirestore db;
     private FirebaseAuth auth;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_mission);
-        
+
         // Inicializar Firebase
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        
-        // AGREGAR: Inicializar selectedDate
+
+        // Inicializar selectedDate
         selectedDate = Calendar.getInstance();
-        
+
         // Inicializar vistas
         titleEditText = findViewById(R.id.titleEditText);
         descriptionEditText = findViewById(R.id.descriptionEditText);
@@ -65,7 +58,7 @@ public class EditMissionActivity extends AppCompatActivity {
         dateButton = findViewById(R.id.dateButton);
         saveButton = findViewById(R.id.saveButton);
         deleteButton = findViewById(R.id.deleteButton);
-        
+
         // Obtener datos de la misión
         Intent intent = getIntent();
         missionId = intent.getStringExtra("mission_id");
@@ -74,19 +67,18 @@ public class EditMissionActivity extends AppCompatActivity {
         String category = intent.getStringExtra("mission_category");
         String difficulty = intent.getStringExtra("mission_difficulty");
         selectedDateTimestamp = intent.getLongExtra("mission_deadline", 0);
-        
+
         // Llenar campos
         if (title != null) titleEditText.setText(title);
         if (description != null) descriptionEditText.setText(description);
-        
+
         // Seleccionar categoría
         selectCategoryChip(category);
-        
+
         // Seleccionar dificultad
         selectDifficultyChip(difficulty);
-        
+
         // Mostrar fecha
-        // AGREGAR: Configurar selectedDate con la fecha existente
         if (selectedDateTimestamp > 0) {
             selectedDate.setTimeInMillis(selectedDateTimestamp);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -97,52 +89,45 @@ public class EditMissionActivity extends AppCompatActivity {
             selectedDateTimestamp = selectedDate.getTimeInMillis();
             updateDateButton();
         }
-        
+
         // Configurar listeners
         dateButton.setOnClickListener(v -> showDatePicker());
         saveButton.setOnClickListener(v -> saveMission());
         deleteButton.setOnClickListener(v -> deleteMission());
     }
-    
+
     private void selectCategoryChip(String category) {
         if (category == null) return;
-        
+
         switch (category.toLowerCase()) {
             case "economía":
-            case "economia":
                 categoryChipGroup.check(R.id.chip_economia);
                 break;
             case "salud":
                 categoryChipGroup.check(R.id.chip_salud);
                 break;
             case "académico":
-            case "academico":
                 categoryChipGroup.check(R.id.chip_academico);
                 break;
         }
     }
-    
+
     private void selectDifficultyChip(String difficulty) {
         if (difficulty == null) return;
-        
+
         switch (difficulty.toLowerCase()) {
             case "fácil":
-            case "facil":
-            case "easy":
                 difficultyChipGroup.check(R.id.chip_easy);
                 break;
             case "medio":
-            case "medium":
                 difficultyChipGroup.check(R.id.chip_medium);
                 break;
             case "difícil":
-            case "dificil":
-            case "hard":
                 difficultyChipGroup.check(R.id.chip_hard);
                 break;
         }
     }
-    
+
     private String getSelectedCategory() {
         int selectedId = categoryChipGroup.getCheckedChipId();
         if (selectedId == R.id.chip_economia) return "Economía";
@@ -150,7 +135,7 @@ public class EditMissionActivity extends AppCompatActivity {
         if (selectedId == R.id.chip_academico) return "Académico";
         return null;
     }
-    
+
     private String getSelectedDifficulty() {
         int selectedId = difficultyChipGroup.getCheckedChipId();
         if (selectedId == R.id.chip_easy) return "Fácil";
@@ -158,22 +143,7 @@ public class EditMissionActivity extends AppCompatActivity {
         if (selectedId == R.id.chip_hard) return "Difícil";
         return null;
     }
-    
-    private int getExpForDifficulty(String difficulty) {
-        switch (difficulty.toLowerCase()) {
-            case "fácil":
-            case "facil":
-                return 50;
-            case "medio":
-                return 160;
-            case "difícil":
-            case "dificil":
-                return 380;
-            default:
-                return 50;
-        }
-    }
-    
+
     private int getManaForDifficulty(String difficulty) {
         switch (difficulty.toLowerCase()) {
             case "facil":
@@ -186,72 +156,72 @@ public class EditMissionActivity extends AppCompatActivity {
                 return 1;
         }
     }
-    
+
     private void showDatePicker() {
         // DatePickerDialog
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-            this,
-            (view, year, month, dayOfMonth) -> {
-                selectedDate.set(Calendar.YEAR, year);
-                selectedDate.set(Calendar.MONTH, month);
-                selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                
-                // TimePickerDialog
-                TimePickerDialog timePickerDialog = new TimePickerDialog(
-                    this,
-                    (timeView, hourOfDay, minute) -> {
-                        selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        selectedDate.set(Calendar.MINUTE, minute);
-                        selectedDate.set(Calendar.SECOND, 0);
-                        
-                        // Validar que la fecha sea al menos 1 hora en el futuro
-                        long selectedTime = selectedDate.getTimeInMillis();
-                        long currentTime = System.currentTimeMillis();
-                        long oneHourFromNow = currentTime + (60 * 60 * 1000);
-                        
-                        if (selectedTime < oneHourFromNow) {
-                            Toast.makeText(this, 
-                                "La fecha debe ser al menos 1 hora en el futuro", 
-                                Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        
-                        selectedDateTimestamp = selectedTime;
-                        updateDateButton();
-                    },
-                    selectedDate.get(Calendar.HOUR_OF_DAY),
-                    selectedDate.get(Calendar.MINUTE),
-                    true
-                );
-                timePickerDialog.show();
-            },
-            selectedDate.get(Calendar.YEAR),
-            selectedDate.get(Calendar.MONTH),
-            selectedDate.get(Calendar.DAY_OF_MONTH)
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(Calendar.YEAR, year);
+                    selectedDate.set(Calendar.MONTH, month);
+                    selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                    // TimePickerDialog
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(
+                            this,
+                            (timeView, hourOfDay, minute) -> {
+                                selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                selectedDate.set(Calendar.MINUTE, minute);
+                                selectedDate.set(Calendar.SECOND, 0);
+
+                                // Validar que la fecha sea al menos 1 hora en el futuro
+                                long selectedTime = selectedDate.getTimeInMillis();
+                                long currentTime = System.currentTimeMillis();
+                                long oneHourFromNow = currentTime + (60 * 60 * 1000);
+
+                                if (selectedTime < oneHourFromNow) {
+                                    Toast.makeText(this,
+                                            "La fecha debe ser al menos 1 hora en el futuro",
+                                            Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+
+                                selectedDateTimestamp = selectedTime;
+                                updateDateButton();
+                            },
+                            selectedDate.get(Calendar.HOUR_OF_DAY),
+                            selectedDate.get(Calendar.MINUTE),
+                            true
+                    );
+                    timePickerDialog.show();
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
         );
-        
+
         // No permitir fechas pasadas
         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
         datePickerDialog.show();
     }
-    
+
     private void updateDateButton() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         dateButton.setText(sdf.format(selectedDate.getTime()));
     }
-    
+
     private void saveMission() {
         String title = titleEditText.getText().toString().trim();
         String description = descriptionEditText.getText().toString().trim();
         String category = getSelectedCategory();
         String difficulty = getSelectedDifficulty();
-        
+
         // Limpiar errores previos
         titleEditText.setError(null);
         descriptionEditText.setError(null);
-        
+
         boolean isValid = true;
-        
+
         // Validaciones mejoradas
         if (title.isEmpty()) {
             titleEditText.setError("El título es requerido");
@@ -266,17 +236,17 @@ public class EditMissionActivity extends AppCompatActivity {
             if (isValid) titleEditText.requestFocus();
             isValid = false;
         }
-     
+
         if (category == null) {
             Toast.makeText(this, "Selecciona una categoría", Toast.LENGTH_SHORT).show();
             isValid = false;
         }
-        
+
         if (difficulty == null) {
             Toast.makeText(this, "Selecciona una dificultad", Toast.LENGTH_SHORT).show();
             isValid = false;
         }
-        
+
         if (selectedDateTimestamp == 0) {
             Toast.makeText(this, "Selecciona una fecha límite", Toast.LENGTH_SHORT).show();
             isValid = false;
@@ -284,19 +254,19 @@ public class EditMissionActivity extends AppCompatActivity {
             // Validar que la fecha sea al menos 1 hora en el futuro
             long currentTime = System.currentTimeMillis();
             long oneHourFromNow = currentTime + (60 * 60 * 1000);
-            
+
             if (selectedDateTimestamp < oneHourFromNow) {
-                Toast.makeText(this, 
-                    "La fecha debe ser al menos 1 hora en el futuro", 
-                    Toast.LENGTH_LONG).show();
+                Toast.makeText(this,
+                        "La fecha debe ser al menos 1 hora en el futuro",
+                        Toast.LENGTH_LONG).show();
                 isValid = false;
             }
         }
-        
+
         if (!isValid) {
             return; // No continuar si hay errores
         }
-        
+
         // Crear mapa de actualización
         Map<String, Object> updates = new HashMap<>();
         updates.put("title", title);
@@ -305,52 +275,43 @@ public class EditMissionActivity extends AppCompatActivity {
         updates.put("difficulty", difficulty);
         updates.put("manaReward", getManaForDifficulty(difficulty));
         updates.put("deadline", selectedDateTimestamp);
-        
+
         // Actualizar en Firestore
         String userId = getCurrentUserId();
         if (userId != null) {
             db.collection("users").document(userId)
-                .collection("missions").document(missionId)
-                .update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(EditMissionActivity.this, "Misión actualizada", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(EditMissionActivity.this, "Error al actualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                    .collection("missions").document(missionId)
+                    .update(updates)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(EditMissionActivity.this, "Misión actualizada", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(EditMissionActivity.this, "Error al actualizar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
         }
     }
-    
-    private void showDeleteConfirmation() {
-        new AlertDialog.Builder(this)
-            .setTitle("Eliminar Misión")
-            .setMessage("¿Estás seguro de que quieres eliminar esta misión? Esta acción no se puede deshacer.")
-            .setPositiveButton("Eliminar", (dialog, which) -> deleteMission())
-            .setNegativeButton("Cancelar", null)
-            .show();
-    }
-    
+
     private void deleteMission() {
         String userId = getCurrentUserId();
         if (userId != null && missionId != null) {
             db.collection("users")
-                .document(userId)
-                .collection("missions")
-                .document(missionId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Misión eliminada exitosamente", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error al eliminar la misión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                    .document(userId)
+                    .collection("missions")
+                    .document(missionId)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Misión eliminada exitosamente", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Error al eliminar la misión: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
         } else {
             Toast.makeText(this, "Error: Usuario no autenticado o ID de misión inválido", Toast.LENGTH_SHORT).show();
         }
     }
-    
+
     private String getCurrentUserId() {
         return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
     }

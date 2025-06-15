@@ -9,8 +9,8 @@ public class InventoryReward {
     private Timestamp obtainedAt;
     private boolean used;
 
+    // Constructor vacío requerido por Firebase
     public InventoryReward() {
-        // Constructor vacío requerido por Firebase
     }
 
     public InventoryReward(String title, String description) {
@@ -21,18 +21,27 @@ public class InventoryReward {
     }
 
     // Getters y Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getTitle() {
+        return title;
+    }
 
-    public Timestamp getObtainedAt() { return obtainedAt; }
-    public void setObtainedAt(Timestamp obtainedAt) { this.obtainedAt = obtainedAt; }
+    public String getDescription() {
+        return description;
+    }
 
-    public boolean isUsed() { return used; }
-    public void setUsed(boolean used) { this.used = used; }
+    public Timestamp getObtainedAt() {
+        return obtainedAt;
+    }
+
+    public boolean isUsed() {
+        return used;
+    }
 }

@@ -1,17 +1,19 @@
 package com.dgo.habitherov4;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.dgo.habitherov4.adapters.InventoryAdapter;
 import com.dgo.habitherov4.models.InventoryReward;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class InventoryActivity extends AppCompatActivity implements InventoryAda
         // Configurar RecyclerView
         inventoryRecyclerView = findViewById(R.id.inventory_recycler_view);
         inventoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        
+
         inventoryItems = new ArrayList<>();
         inventoryAdapter = new InventoryAdapter(inventoryItems, this);
         inventoryRecyclerView.setAdapter(inventoryAdapter);
@@ -50,27 +52,22 @@ public class InventoryActivity extends AppCompatActivity implements InventoryAda
         loadInventory();
     }
 
+    // Cargar items en mochila
     private void loadInventory() {
-        Log.d("InventoryActivity", "Cargando inventario para usuario: " + currentUserId);
-        
         db.collection("users").document(currentUserId)
                 .collection("inventory")
                 .whereEqualTo("used", false)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    Log.d("InventoryActivity", "Documentos encontrados: " + queryDocumentSnapshots.size());
                     inventoryItems.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         InventoryReward item = document.toObject(InventoryReward.class);
                         item.setId(document.getId());
                         inventoryItems.add(item);
-                        Log.d("InventoryActivity", "Recompensa cargada: " + item.getTitle());
                     }
                     inventoryAdapter.notifyDataSetChanged();
-                    Log.d("InventoryActivity", "Total items en inventario: " + inventoryItems.size());
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("InventoryActivity", "Error al cargar inventario: " + e.getMessage());
                     Toast.makeText(this, "Error al cargar inventario: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
@@ -80,6 +77,7 @@ public class InventoryActivity extends AppCompatActivity implements InventoryAda
         showUseItemDialog(item);
     }
 
+    // Alerta para el uso de objetos
     private void showUseItemDialog(InventoryReward item) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Usar Recompensa")
@@ -93,6 +91,7 @@ public class InventoryActivity extends AppCompatActivity implements InventoryAda
                 .show();
     }
 
+    // Consumir el objeto usado
     private void useItem(InventoryReward item) {
         // Marcar como usado en Firestore
         db.collection("users").document(currentUserId)

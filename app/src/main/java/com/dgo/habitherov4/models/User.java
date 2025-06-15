@@ -3,25 +3,26 @@ package com.dgo.habitherov4.models;
 public class User {
     private String id;
     private String name;
-    private String email;
     private int level;
-    
+
     // Estadísticas de Maná
     private int currentMana;
     private int maxMana;
-    
+
     // Estadísticas de Vida
     private int currentHp;
     private int maxHp;
-    
+
     // Estadísticas de Experiencia
     private int currentExp;
     private int maxExp;
-    
+
+    // La idea era asignar tu foto de google a un perfil de "juego". De momento
+    // no supe como hacerlo, lo dejo para futura investigación.
     private String profileImageUrl;
-    
+
+
     public User() {
-        // Constructor vacío requerido para Firebase
         // Valores por defecto FIJOS
         this.currentHp = 5; // Vida a tope
         this.maxHp = 5;
@@ -31,86 +32,70 @@ public class User {
         this.maxExp = 5;
         this.level = 1;
     }
-    
-    public User(String name, int level, int currentMana, int maxMana, String profileImageUrl) {
-        this.name = name;
-        this.level = level;
-        this.currentMana = currentMana;
-        this.maxMana = maxMana;
-        this.profileImageUrl = profileImageUrl;
-        
-        // Inicializar valores por defecto para HP y EXP
-        this.currentHp = 5;
-        this.maxHp = 5;
-        this.currentExp = 0;
-        this.maxExp = 5;
-    }
-    
+
     // Getters y setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    
-    public int getLevel() { return level; }
-    public void setLevel(int level) { this.level = level; }
-    
-    public int getCurrentMana() { return currentMana; }
-    public void setCurrentMana(int currentMana) { this.currentMana = currentMana; }
-    
-    public int getMaxMana() { return maxMana; }
-    public void setMaxMana(int maxMana) { this.maxMana = maxMana; }
-    
-    public int getManaPercentage() {
-        if (maxMana == 0) return 0;
-        return (int) ((currentMana * 100.0) / maxMana);
+    public String getId() {
+        return id;
     }
-    
-    // Método para añadir maná basado en dificultad
-    public void addMana(int manaToAdd) {
-        this.currentMana = Math.min(this.currentMana + manaToAdd, this.maxMana);
+
+    public void setId(String id) {
+        this.id = id;
     }
-    
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getCurrentMana() {
+        return currentMana;
+    }
+
+    public void setCurrentMana(int currentMana) {
+        this.currentMana = currentMana;
+    }
+
+    public int getMaxMana() {
+        return maxMana;
+    }
+
     // Getters y setters para HP
-    public int getCurrentHp() { return currentHp; }
-    public void setCurrentHp(int currentHp) { this.currentHp = currentHp; }
-    
-    public int getMaxHp() { return maxHp; }
-    public void setMaxHp(int maxHp) { this.maxHp = maxHp; }
-    
-    public int getHpPercentage() {
-        if (maxHp == 0) return 0;
-        return (int) ((currentHp * 100.0) / maxHp);
+    public int getCurrentHp() {
+        return currentHp;
     }
-    
+
+    public int getMaxHp() {
+        return maxHp;
+    }
+
     // Getters y setters para EXP
-    public int getCurrentExp() { return currentExp; }
-    public void setCurrentExp(int currentExp) { this.currentExp = currentExp; }
-    
-    public int getMaxExp() { return maxExp; }
-    public void setMaxExp(int maxExp) { this.maxExp = maxExp; }
-    
-    public int getExpPercentage() {
-        if (maxExp == 0) return 0;
-        return (int) ((currentExp * 100.0) / maxExp);
+    public int getCurrentExp() {
+        return currentExp;
     }
-    
-    // Método para añadir experiencia
+
+    public int getMaxExp() {
+        return maxExp;
+    }
+
+    // Metodo para añadir experiencia
     public void addExp(int expToAdd) {
         this.currentExp += expToAdd;
-        
+
         // Verificar si debe subir de nivel (cuando EXP llega a 5)
         while (this.currentExp >= 5) {
             this.currentExp -= 5; // Reiniciar EXP restando 5
             levelUp();
         }
     }
-    
-    // Método para subir de nivel
+
+    // Metodo para subir de nivel
     private void levelUp() {
         this.level++;
         // Ya no modificamos maxExp, se mantiene en 5
@@ -118,20 +103,27 @@ public class User {
         this.maxMana = Math.min(this.maxMana + 1, 5); // Aumentar MP máxima (máximo 5)
         this.currentHp = this.maxHp; // Restaurar HP completa al subir nivel
     }
-    
-    // MÉTODOS CORREGIDOS PARA OBTENER EL NIVEL DE BARRA
+
+
+    // Metodo para añadir maná basado en dificultad
+    public void addMana(int manaToAdd) {
+        this.currentMana = Math.min(this.currentMana + manaToAdd, this.maxMana);
+    }
+
+    // Asignar VISUALMENTe HP, MP y EXP con los PNG de Drawable.
+    // Calcula el nivel de la barra para mostrar en la UI
     public int getHpBarLevel() {
         int level = Math.max(0, Math.min(5, currentHp));
         android.util.Log.d("User", "HP: " + currentHp + "/" + maxHp + " -> bar level " + level);
         return level;
     }
-    
+
     public int getManaBarLevel() {
         int level = Math.max(0, Math.min(5, currentMana));
         android.util.Log.d("User", "MP: " + currentMana + "/" + maxMana + " -> bar level " + level);
         return level;
     }
-    
+
     public int getExpBarLevel() {
         int level = Math.max(0, Math.min(5, currentExp));
         android.util.Log.d("User", "EXP: " + currentExp + "/" + maxExp + " -> bar level " + level);

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RewardsActivity extends AppCompatActivity {
-    
+
     private RecyclerView rewardsRecyclerView;
     private RewardsAdapter rewardsAdapter;
     private List<Reward> rewardsList;
@@ -56,6 +56,7 @@ public class RewardsActivity extends AppCompatActivity {
         loadRewards();
     }
 
+    // Alertga para añadir recompensa
     private void showAddRewardDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_reward, null);
@@ -79,9 +80,10 @@ public class RewardsActivity extends AppCompatActivity {
                 .show();
     }
 
+    // Crear recompensa
     private void createReward(String title, String description) {
         Reward reward = new Reward(title, description);
-        
+
         db.collection("users")
                 .document(currentUserId)
                 .collection("rewards")
@@ -97,6 +99,7 @@ public class RewardsActivity extends AppCompatActivity {
                 });
     }
 
+    // Cargar recompensas
     private void loadRewards() {
         db.collection("users")
                 .document(currentUserId)
